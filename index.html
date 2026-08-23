@@ -865,7 +865,7 @@
     for (const f of G.floaters) {
       ctx.globalAlpha = Math.min(1, f.t / f.maxT * 2);
       ctx.fillStyle = f.color;
-      ctx.fillText(String(f.text), f.x, f.y);
+      ctx.fillText(String(f.txt), f.x, f.y);
     }
     ctx.globalAlpha = 1;
     ctx.restore();
