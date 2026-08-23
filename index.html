@@ -9,7 +9,7 @@
   body { background: #0a0a12; overflow: hidden; font-family: 'Segoe UI', sans-serif; color: #fff; }
   canvas { display: block; touch-action: none; }
   /* HUD */
-  .hud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 20px; display: flex; gap: 20px; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent); pointer-events: none; z-index: 10; }
+  .hud { position: fixed; top: env(safe-area-inset-top); left: 0; right: 0; padding: 10px 20px; display: flex; gap: 20px; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent); pointer-events: none; z-index: 10; }
   .bar-wrap { flex: 1; max-width: 300px; }
   .bar-label { font-size: 12px; margin-bottom: 2px; }
   .bar { height: 16px; background: #1a1a2e; border-radius: 8px; overflow: hidden; position: relative; }
@@ -21,12 +21,12 @@
   #timer { font-size: 14px; white-space: nowrap; }
   #kills { font-size: 14px; white-space: nowrap; }
   /* 보스 바 */
-  #bossBar { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); width: 420px; display: none; z-index: 11; }
+  #bossBar { position: fixed; top: calc(env(safe-area-inset-top) + 14px); left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 24px)); display: none; z-index: 11; }
   #bossName { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 4px; }
   #bossBar .bar { height: 20px; }
   #bossFill { background: linear-gradient(90deg, #9d0208, #e63946); width: 100%; }
   /* 스킬 아이콘 */
-  #skills { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+  #skills { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
   .skill-icon { width: 48px; height: 48px; background: #1a1a2e; border: 2px solid #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; position: relative; }
   .skill-cd { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
   /* 모달 */
@@ -45,6 +45,17 @@
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
   .stat { background: #111; padding: 8px; border-radius: 6px; }
   .stat span { color: #ffd166; }
+  /* 모바일: HUD 2줄 레이아웃 + 세이프 영역 */
+  @media (max-width: 640px) {
+    .hud { padding: calc(env(safe-area-inset-top) + 8px) 12px 8px; flex-wrap: wrap; gap: 10px; row-gap: 6px; }
+    .bar-wrap { flex: 1 1 calc(50% - 8px); max-width: none; }
+    .bar-label { font-size: 10px; }
+    .bar { height: 14px; }
+    .bar-text { font-size: 10px; }
+    #stageInfo, #timer, #kills { font-size: 12px; flex: 1 1 0; text-align: center; white-space: nowrap; }
+    #bossBar { top: calc(env(safe-area-inset-top) + 72px); }
+    .skill-icon { width: 42px; height: 42px; font-size: 18px; }
+  }
 </style>
 </head>
 <body>
