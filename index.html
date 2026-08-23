@@ -305,7 +305,9 @@
       G.kills++; G.totalKills++;
       const lsK = G.player.skills.lifesteal;
       if (lsK) { const stK = skillStats('lifesteal', lsK); if (stK && stK.killHeal) G.player.hp = Math.min(G.player.maxHp, G.player.hp + stK.killHeal); }
-      G.pickups.push({ x: e.x, y: e.y, xp: e.xp, r: e.xp >= 20 ? 10 : 5, t: 0 });
+      const crit = Math.random() < 0.10; // 10%: 5배 XP 구슬
+      const xpVal = crit ? e.xp * 5 : e.xp;
+      G.pickups.push({ x: e.x, y: e.y, xp: xpVal, r: xpVal >= 20 ? 10 : 5, t: 0, crit });
       G.shake = Math.min(1, G.shake + (e.type === 'boss' ? 0.5 : 0.1));
     }
   }
@@ -778,8 +780,20 @@
     }
     // XP 구슬
     for (const pk of G.pickups) {
-      const orbSize = (pk.xp >= 20 ? 22 : 14) * (1 + 0.1 * Math.sin(G.time * 5 + pk.x * 0.05 + pk.y * 0.03));
-      if (!drawAsset('xp_orb', pk.x, pk.y, orbSize)) {
+      const pulse = 1 + 0.1 * Math.sin(G.time * 5 + pk.x * 0.05 + pk.y * 0.03);
+      if (pk.crit) {
+        // 5배 XP 구슬: 금색 글로우 + "5x" 라벨
+        const s = 20 * pulse;
+        ctx.save();
+        ctx.shadowColor = '#ffd166'; ctx.shadowBlur = 16;
+        const grad = ctx.createRadialGradient(pk.x, pk.y, 2, pk.x, pk.y, s);
+        grad.addColorStop(0, '#fff7d6'); grad.addColorStop(0.55, '#ffd166'); grad.addColorStop(1, 'rgba(255,170,40,0.2)');
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(pk.x, pk.y, s, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+        ctx.fillText('5x', pk.x, pk.y - s - 3);
+      } else if (!drawAsset('xp_orb', pk.x, pk.y, (pk.xp >= 20 ? 22 : 14) * pulse)) {
         ctx.fillStyle = pk.xp >= 20 ? '#ffd166' : '#7ae582';
         ctx.beginPath(); ctx.arc(pk.x, pk.y, pk.r, 0, Math.PI * 2); ctx.fill();
       }
