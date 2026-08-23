@@ -447,7 +447,7 @@
       const st = skillStats(id, lv);
       if (!st) continue;
       p.skillTimers[id] = (p.skillTimers[id] === undefined ? 0 : p.skillTimers[id]) - dt;
-      const t = p.skillTimers[id];
+      let t = p.skillTimers[id];
       switch (id) {
         case 'fireball':
           if (t <= 0) {
@@ -527,6 +527,7 @@
           break;
         // multishot / lifesteal / speed: 패시브 (updatePlayer·damageEnemy에서 적용)
       }
+      p.skillTimers[id] = t;
     }
   }
 
