@@ -282,9 +282,9 @@
   }
 
   // ===== 스폰 =====
-  function spawnEnemy() {
+  function spawnEnemy(forceType) {
     const stage = G.stage;
-    const type = rollEnemyType(stage, Math.random);
+    const type = forceType || rollEnemyType(stage, Math.random);
     const base = CONFIG.ENEMIES[type];
     const scale = enemyHpScale(stage);
     const angle = Math.random() * Math.PI * 2;
@@ -371,7 +371,7 @@
       G.kills++; G.totalKills++;
       const lsK = G.player.skills.lifesteal;
       if (lsK) { const stK = skillStats('lifesteal', lsK); if (stK && stK.killHeal) G.player.hp = Math.min(G.player.maxHp, G.player.hp + stK.killHeal); }
-      const crit = Math.random() < 0.10; // 10%: 5배 XP 구슬
+      const crit = Math.random() < (e.type === 'miniboss' ? 0.50 : 0.10); // 미니보스: 50% / 일반: 10% → 5배 XP 구슬
       const xpVal = crit ? e.xp * 5 : e.xp;
       G.pickups.push({ x: e.x, y: e.y, xp: xpVal, r: xpVal >= 20 ? 10 : 5, t: 0, crit });
       // ===== 아이템 드롭 =====
@@ -814,6 +814,7 @@
       if (G.spawnTimer <= 0) {
         G.spawnTimer = spawnInterval(G.stage);
         G.enemies.push(spawnEnemy());
+        if (G.stage > 25 && G.enemies.length < MAX_ENEMIES) G.enemies.push(spawnEnemy('miniboss')); // 25스테이지 이후: 일반 몬스터와 1:1 미니보스
       }
     }
     // 보스 소환: 최종보스 즉시 / 미니보스 스테이지 시작 30s 후
