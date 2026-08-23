@@ -3,16 +3,49 @@
 
 // ===== 스테이지 구성 (계획서 2.3절) =====
 const CONFIG = {
-  STAGES: [
-    { time: 120, ratio: { basic: 1, fast: 0, tanky: 0, ranged: 0 }, clearKills: 20, boss: false },
-    { time: 150, ratio: { basic: 0.7, fast: 0.3, tanky: 0, ranged: 0 }, clearKills: 30, boss: false },
-    { time: 180, ratio: { basic: 0.5, fast: 0.25, tanky: 0.15, ranged: 0.1 }, clearKills: 40, boss: false },
-    { time: 180, ratio: { basic: 0.4, fast: 0.25, tanky: 0.2, ranged: 0.15 }, clearKills: 50, boss: false },
-    { time: 210, ratio: { basic: 0.35, fast: 0.25, tanky: 0.2, ranged: 0.2 }, clearKills: 60, boss: true }, // miniboss
-    { time: 210, ratio: { basic: 0.3, fast: 0.25, tanky: 0.25, ranged: 0.2 }, clearKills: 80, boss: false },
-    { time: 240, ratio: { basic: 0.25, fast: 0.25, tanky: 0.25, ranged: 0.25 }, clearKills: 100, boss: false },
-    { time: 270, ratio: { basic: 0.2, fast: 0.25, tanky: 0.25, ranged: 0.3 }, clearKills: 0, boss: true }, // final boss
-  ],
+  // 30 스테이지 — S5/10/15/20/25 미니보스, S30 최종보스 (S1–8은 원 밸런스 유지)
+  STAGES: (function buildStages() {
+    const N = 30;
+    const r2 = x => Math.round(x * 100) / 100;
+    const legacy = [
+      { time: 120, ratio: { basic: 1, fast: 0, tanky: 0, ranged: 0 }, clearKills: 20 },
+      { time: 150, ratio: { basic: 0.7, fast: 0.3, tanky: 0, ranged: 0 }, clearKills: 30 },
+      { time: 180, ratio: { basic: 0.5, fast: 0.25, tanky: 0.15, ranged: 0.1 }, clearKills: 40 },
+      { time: 180, ratio: { basic: 0.4, fast: 0.25, tanky: 0.2, ranged: 0.15 }, clearKills: 50 },
+      { time: 210, ratio: { basic: 0.35, fast: 0.25, tanky: 0.2, ranged: 0.2 }, clearKills: 60, mini: true },
+      { time: 210, ratio: { basic: 0.3, fast: 0.25, tanky: 0.25, ranged: 0.2 }, clearKills: 80 },
+      { time: 240, ratio: { basic: 0.25, fast: 0.25, tanky: 0.25, ranged: 0.25 }, clearKills: 100 },
+      { time: 270, ratio: { basic: 0.2, fast: 0.25, tanky: 0.25, ranged: 0.3 }, clearKills: 100 }, // S8: 최종 제거 → 일반 스테이지
+    ];
+    const arr = [];
+    for (let s = 1; s <= N; s++) {
+      const isFinal = s === N;
+      const isMini = !isFinal && s % 5 === 0;
+      let ratio, time, clearKills, boss = false;
+      if (s <= 8) {
+        const L = legacy[s - 1];
+        ratio = L.ratio; time = L.time; clearKills = L.clearKills;
+        boss = !!L.mini;
+      } else if (!isFinal) {
+        const u = (s - 8) / (N - 9); // s9..s29 → 0.048..1 (S8 밸런스를 유지하며 S29까지 보간)
+        const basic = r2(0.2 + (0.1 - 0.2) * u);
+        const fast = r2(0.25 + (0.25 - 0.25) * u);
+        const tanky = r2(0.25 + (0.3 - 0.25) * u);
+        const ranged = r2(1 - basic - fast - tanky); // 합=1 보정
+        ratio = { basic, fast, tanky, ranged };
+        time = Math.min(300, 240 + s * 5);
+        clearKills = 100 + (s - 9) * 5; // s9:105 → s29:200
+        boss = isMini;
+      } else {
+        ratio = { basic: 0.1, fast: 0.25, tanky: 0.3, ranged: 0.35 };
+        time = 999; clearKills = 0; boss = true;
+      }
+      const stg = { time, ratio, clearKills, boss };
+      if (boss) stg.bossType = isFinal ? 'boss' : 'miniboss';
+      arr.push(stg);
+    }
+    return arr;
+  })(),
   ENEMIES: {
     basic:    { hp: 30,  speed: 90,  dmg: 14, xp: 2  },
     fast:     { hp: 15,  speed: 170, dmg: 12, xp: 2  },
@@ -20,6 +53,18 @@ const CONFIG = {
     ranged:   { hp: 20,  speed: 80,  dmg: 18, xp: 3  },
     miniboss: { hp: 800, speed: 70,  dmg: 30, xp: 30 },
     boss:     { hp: 12000, speed: 70, dmg: 40, xp: 150 },
+  },
+  // ===== 아이템 드랍 (아이템별 확률 — 항상 드랍 아님) =====
+  // 일반 몬스터: 아이템마다 독립 롤, p = weight/100 × ITEM_DROP_BASE (합계 ≈8%)
+  // 미니보스: 확정 1개 / 최종보스: 확정 3개 (가중치 롤)
+  ITEM_DROP_BASE: 0.08,
+  ITEMS: {
+    heart:  { label: '❤',  name: '최대HP+15',        color: '#ff6b9d', weight: 22 },
+    gem:    { label: '💎', name: '공격+8% (영구)', color: '#c084fc', weight: 16 },
+    rage:   { label: '🔥', name: '데미지 2배 8초',  color: '#ff9f1c', weight: 18 },
+    haste:  { label: '👟', name: '이동속도+50% 8초', color: '#4dabf7', weight: 18 },
+    mend:   { label: '✚',  name: 'HP 50% 회복',   color: '#69db7c', weight: 16 },
+    magnet: { label: '🧲', name: '자석: 아이템 흡인',   color: '#ffd166', weight: 10 },
   },
   SKILLS: {
     fireball: [
@@ -145,6 +190,22 @@ function rollEnemyType(stage, rand) {
   return 'basic';
 }
 
+// ===== 아이템 드랍 (확률적) =====
+// 아이템별 드랍 확률: weight/100 × ITEM_DROP_BASE (0 < p < 1)
+function itemDropChance(id) {
+  const it = CONFIG.ITEMS[id];
+  return it ? it.weight / 100 * CONFIG.ITEM_DROP_BASE : 0;
+}
+// 가중치 롤 (미니보스/최종보스 확정 드랍용)
+function rollItem(rand) {
+  rand = rand || Math.random;
+  const items = CONFIG.ITEMS;
+  const total = Object.values(items).reduce((s, it) => s + it.weight, 0);
+  let r = rand() * total;
+  for (const id in items) { r -= items[id].weight; if (r < 0) return id; }
+  return 'heart';
+}
+
 // ===== 스킬 통계 =====
 function skillStats(id, level) {
   if (!id || !level || level < 1 || level > MAX_SKILL_LEVEL) return null;
@@ -199,8 +260,8 @@ function makeRng(seed) {
 
 // ===== Export =====
 if (typeof module !== 'undefined') {
-  module.exports = { CONFIG, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, skillStats, rollSkillChoices, makeRng };
+  module.exports = { CONFIG, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng };
 }
 if (typeof window !== 'undefined') {
-  window.GameLogic = { CONFIG, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, skillStats, rollSkillChoices, makeRng };
+  window.GameLogic = { CONFIG, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng };
 }

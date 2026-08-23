@@ -190,6 +190,9 @@
     enemy_ranged: { fps: 7 },
     enemy_miniboss: { fps: 6 },
     enemy_boss: { fps: 6, seq: [0, 1, 2, 1] }, // 날개짓: 순환(팔린드롬) 시퀀스
+    comp_warrior: { fps: 6 },
+    comp_guardian: { fps: 5 },
+    comp_shadow: { fps: 8 },
   };
   const ANIM = {};
   for (const an in ANIM_SPECS) {
@@ -1005,13 +1008,16 @@
     if (G.companion) {
       const c = G.companion;
       const cdef = CONFIG.COMPANIONS.find(x => x.id === c.id);
-      ctx.fillStyle = COMP_COLORS[c.id] || '#ffffff';
-      ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.stroke();
-      ctx.font = '14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(cdef ? cdef.icon : '❔', c.x, c.y);
-      ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+      const cdrawn = drawSprite('comp_' + c.id, c.x, c.y, 26, G.time, true, 1);
+      if (!cdrawn) {
+        ctx.fillStyle = COMP_COLORS[c.id] || '#ffffff';
+        ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.stroke();
+        ctx.font = '14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(cdef ? cdef.icon : '❔', c.x, c.y);
+        ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+      }
     }
     // 스래시
     for (const s of G.slashes) {
