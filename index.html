@@ -753,7 +753,11 @@
     for (const pk of G.pickups) {
       pk.t += dt;
       const d2 = dist2(pk, p);
-      if (d2 < PLAYER.xpRadius * PLAYER.xpRadius) {
+      if (G.tempBuffs.magnet > 0 && d2 < 400 * 400) { // 자석: XP 구슬도 흡인
+        const d = Math.sqrt(d2) || 1;
+        pk.x += ((p.x - pk.x) / d) * 350 * dt;
+        pk.y += ((p.y - pk.y) / d) * 350 * dt;
+      } else if (d2 < PLAYER.xpRadius * PLAYER.xpRadius) {
         const d = Math.sqrt(d2) || 1;
         pk.x += ((p.x - pk.x) / d) * 300 * dt;
         pk.y += ((p.y - pk.y) / d) * 300 * dt;
