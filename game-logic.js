@@ -84,6 +84,29 @@ const CONFIG = {
       { pct: 10 }, { pct: 20 }, { pct: 30 }, { pct: 40 }, { pct: 50 },
     ],
   },
+  COMPANIONS: [
+    {
+      id: 'warrior', name: '광전사', icon: '⚔️',
+      passive: { dmgPct: 25 },
+      atk: { cd: 1.5, range: 130, dmg: 30 },
+      ult: { cd: 12, radius: 100, dmg: 80, label: '전쟁의 포효' },
+      desc: '공격력 +25%<br>자동공격 30데미지 / 포효: 주변 80데미지',
+    },
+    {
+      id: 'guardian', name: '수호자', icon: '🛡️',
+      passive: { maxHp: 50 },
+      heal: { cd: 10, amount: 15 },
+      ult: { cd: 15, shield: 60, label: '장벽' },
+      desc: '최대 체력 +50<br>자동 회복 15 / 장벽: 보호막 60',
+    },
+    {
+      id: 'shadow', name: '그림자', icon: '🗡️',
+      passive: { atkSpdPct: 25 },
+      atk: { cd: 0.8, range: 160, dmg: 8, projSpeed: 320 },
+      ult: { cd: 12, range: 150, hits: 3, dmg: 12, label: '그림자 일격' },
+      desc: '공격속도 +25%<br>칼날 8데미지 / 그림자 일격: 3연격 12',
+    },
+  ],
 };
 
 const MAX_SKILL_LEVEL = 5;

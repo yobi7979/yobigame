@@ -29,6 +29,20 @@
   #skills { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
   .skill-icon { width: 48px; height: 48px; background: #1a1a2e; border: 2px solid #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; position: relative; }
   .skill-cd { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
+  /* 동료 칩 */
+  #compChip { position: fixed; right: 12px; bottom: 64px; z-index: 5; display: none;
+    background: rgba(10,12,20,0.75); border: 1px solid #3a3f55; border-radius: 8px;
+    padding: 4px 10px; font-size: 13px; color: #ddd; }
+  /* 동료 선택 카드 */
+  #compCards { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+  .comp-card { flex: 1; text-align: center; padding: 10px 6px; border: 2px solid #333;
+    border-radius: 10px; cursor: pointer; background: rgba(0,0,0,0.3); transition: all .15s; }
+  .comp-card:hover { border-color: #666; }
+  .comp-card.selected { border-color: #ffd166; background: rgba(255,209,102,0.12);
+    box-shadow: 0 0 12px rgba(255,209,102,0.35); }
+  .comp-icon { font-size: 26px; }
+  .comp-name { font-weight: 700; margin: 4px 0 2px; font-size: 14px; }
+  .comp-desc { font-size: 11px; color: #999; line-height: 1.4; }
   /* 모달 */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
   .modal-overlay.hidden { display: none; }
@@ -85,6 +99,9 @@
 <!-- 스킬 아이콘 -->
 <div id="skills"></div>
 
+<!-- 동료 칩 -->
+<div id="compChip"></div>
+
 <!-- 시작 화면 -->
 <div class="modal-overlay" id="startModal">
   <div class="modal">
@@ -93,6 +110,8 @@
     <p>WASD 이동 — 근접 자동공격 — 3택1 스킬 성장</p>
     <p style="font-size:12px;color:#888">R: 재시작</p>
     <br>
+    <p style="margin:8px 0 6px;font-size:13px;color:#aaa">— 동료를 선택하세요 —</p>
+    <div id="compCards"></div>
     <button class="btn" id="startBtn">게임 시작</button>
   </div>
 </div>
@@ -207,7 +226,7 @@
   let currentChoices = [];
 
   function newRun() {
-    return {
+    const g = {
       state: 'menu', time: 0, stage: 1,
       player: {
         x: WORLD.w/2, y: WORLD.h/2, radius: 14,
@@ -223,6 +242,16 @@
       kills: 0, totalKills: 0,
       spawnTimer: 0, boss: null, stageTime: 0, shake: 0,
     };
+    // ===== 동료 초기화 =====
+    g.companion = {
+      id: (CONFIG.COMPANIONS.find(c => c.id === chosenCompId) || CONFIG.COMPANIONS[0]).id,
+      x: g.player.x - 45, y: g.player.y,
+      atkTimer: 1, healTimer: 8, ultTimer: 10,
+    };
+    g.knives = [];
+    const _gdef = CONFIG.COMPANIONS.find(c => c.id === g.companion.id);
+    if (_gdef.passive.maxHp) { g.player.maxHp += _gdef.passive.maxHp; g.player.hp = g.player.maxHp; }
+    return g;
   }
 
   // ===== 저장소 =====
@@ -278,13 +307,24 @@
   }
 
   // ===== 데미지 =====
-  // power 패시브: 전체 데미지 배율 (근접 + 스킬 직접 피해)
+  // power 패시브: 전체 데미지 배율 (근접 + 스킬 직접 피해) + 광전사 패시브
   function dmgMul() {
+    let m = 1;
     if (G && G.player && G.player.skills.power) {
       const s = skillStats('power', G.player.skills.power);
-      if (s) return 1 + s.pct / 100;
+      if (s) m += s.pct / 100;
     }
-    return 1;
+    if (G && G.companion) {
+      const cd = CONFIG.COMPANIONS.find(c => c.id === G.companion.id);
+      if (cd && cd.passive.dmgPct) m += cd.passive.dmgPct / 100;
+    }
+    return m;
+  }
+  // 그림자 패시브: 근접 공격속도 증가율
+  function compAtkSpd() {
+    if (!G || !G.companion) return 0;
+    const cd = CONFIG.COMPANIONS.find(c => c.id === G.companion.id);
+    return cd && cd.passive.atkSpdPct ? cd.passive.atkSpdPct / 100 : 0;
   }
   function damageEnemy(e, dmg, opts = {}) {
     e.hp -= dmg;
@@ -350,7 +390,7 @@
         .sort((a, b) => dist2(a, p) - dist2(b, p)).slice(0, 1);
       if (targets.length) {
         const cdMul = p.skills.multishot ? (p.skills.multishot >= 4 ? 0.9 : 1) * (p.skills.multishot >= 5 ? 0.9 : 1) : 1;
-        p.atkTimer = PLAYER.atkCd * cdMul / hits;
+        p.atkTimer = PLAYER.atkCd * cdMul / hits * (1 - compAtkSpd());
         for (const t of targets) {
           for (let i = 0; i < hits; i++) damageEnemy(t, PLAYER.atkDmg * (i === 0 ? 1 : 0.5) * dmgMul(), { fromMelee: true });
           G.particles.push({ x: t.x, y: t.y, vx: (Math.random()-.5)*80, vy: (Math.random()-.5)*80, life: .12, maxLife: .12, color: '#fff', size: 4 });
@@ -360,6 +400,86 @@
         G.slashes.push({ x: p.x, y: p.y, angle: a, range, t: 0.16, maxT: 0.16 });
       }
     }
+  }
+
+  // ===== 동료 시스템 =====
+  const COMP_COLORS = { warrior: '#ff9f43', guardian: '#4dabf7', shadow: '#b197fc' };
+  function updateCompanion(dt) {
+    const c = G.companion;
+    if (!c) return;
+    const p = G.player;
+    const def = CONFIG.COMPANIONS.find(x => x.id === c.id);
+    if (!def) return;
+    // 추종: 플레이어와 40px 간격 유지
+    const dx = p.x - c.x, dy = p.y - c.y;
+    const d = Math.hypot(dx, dy) || 1;
+    if (d > 40) {
+      const sp = Math.min(280, d * 6) * dt;
+      c.x += dx / d * sp; c.y += dy / d * sp;
+    }
+    c.atkTimer -= dt; c.ultTimer -= dt;
+    if (c.id === 'warrior') {
+      if (c.atkTimer <= 0) {
+        const t = nearestEnemy(c.x, c.y, def.atk.range);
+        if (t) {
+          c.atkTimer = def.atk.cd;
+          G.slashes.push({ x: c.x, y: c.y, angle: Math.atan2(t.y - c.y, t.x - c.x), range: 44, t: 0.16, maxT: 0.16 });
+          damageEnemy(t, def.atk.dmg);
+        }
+      }
+      if (c.ultTimer <= 0) {
+        const near = G.enemies.filter(e => e.hp > 0 && dist2(e, p) < def.ult.radius * def.ult.radius);
+        if (near.length) {
+          c.ultTimer = def.ult.cd;
+          G.explosions.push({ x: p.x, y: p.y, r: def.ult.radius, t: 0.4, maxT: 0.4 });
+          for (const e of near) damageEnemy(e, def.ult.dmg);
+          G.floaters.push({ x: p.x, y: p.y - 26, txt: def.ult.label, color: '#ff9f43', t: 0.8, maxT: 0.8 });
+        }
+      }
+    } else if (c.id === 'guardian') {
+      c.healTimer -= dt;
+      if (c.healTimer <= 0 && p.hp < p.maxHp) {
+        c.healTimer = def.heal.cd;
+        p.hp = Math.min(p.maxHp, p.hp + def.heal.amount);
+        G.floaters.push({ x: p.x, y: p.y - 24, txt: '+' + def.heal.amount, color: '#7ae582', t: 0.8, maxT: 0.8 });
+      }
+      if (c.ultTimer <= 0) {
+        c.ultTimer = def.ult.cd;
+        p.shield = Math.max(p.shield, def.ult.shield);
+        // 파티클: 기존 G.particles.push 형식 모사 — 파란 링
+        G.particles.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .4, maxLife: .4, color: '#4dabf7', size: p.radius + 8, ring: true });
+        G.floaters.push({ x: p.x, y: p.y - 24, txt: def.ult.label + ' +' + def.ult.shield, color: '#4dabf7', t: 0.8, maxT: 0.8 });
+      }
+    } else if (c.id === 'shadow') {
+      if (c.atkTimer <= 0) {
+        const t = nearestEnemy(c.x, c.y, def.atk.range);
+        if (t) {
+          c.atkTimer = def.atk.cd;
+          const a = Math.atan2(t.y - c.y, t.x - c.x);
+          G.knives.push({ x: c.x, y: c.y, vx: Math.cos(a) * def.atk.projSpeed, vy: Math.sin(a) * def.atk.projSpeed, dmg: def.atk.dmg, life: 1.2 });
+        }
+      }
+      if (c.ultTimer <= 0) {
+        const t = nearestEnemy(c.x, c.y, def.ult.range);
+        if (t) {
+          c.ultTimer = def.ult.cd;
+          for (let i = 0; i < def.ult.hits; i++) {
+            const a = Math.atan2(t.y - c.y, t.x - c.x) + (i - 1) * 0.35;
+            G.slashes.push({ x: c.x, y: c.y, angle: a, range: 48, t: 0.16, maxT: 0.16 });
+            damageEnemy(t, def.ult.dmg);
+          }
+          G.floaters.push({ x: p.x, y: p.y - 26, txt: def.ult.label, color: '#b197fc', t: 0.8, maxT: 0.8 });
+        }
+      }
+    }
+    // 칼날 투사체
+    for (const k of G.knives) {
+      k.x += k.vx * dt; k.y += k.vy * dt; k.life -= dt;
+      for (const e of G.enemies) {
+        if (e.hp > 0 && dist2(e, k) < (e.radius + 5) * (e.radius + 5)) { damageEnemy(e, k.dmg); k.life = 0; break; }
+      }
+    }
+    G.knives = G.knives.filter(k => k.life > 0);
   }
 
   // ===== 적 업데이트 (AI 4종 + 보스) =====
@@ -874,6 +994,25 @@
     // 이동 방향
     ctx.strokeStyle = p.flash > 0 ? '#ff8899' : '#ffd166'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + Math.cos(p.angle) * (p.radius + 6), p.y + Math.sin(p.angle) * (p.radius + 6)); ctx.stroke();
+    // 칼날 (동료)
+    for (const k of G.knives) {
+      const a = Math.atan2(k.vy, k.vx);
+      ctx.strokeStyle = '#b197fc'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(k.x - Math.cos(a) * 7, k.y - Math.sin(a) * 7);
+      ctx.lineTo(k.x + Math.cos(a) * 7, k.y + Math.sin(a) * 7); ctx.stroke();
+    }
+    // 동료
+    if (G.companion) {
+      const c = G.companion;
+      const cdef = CONFIG.COMPANIONS.find(x => x.id === c.id);
+      ctx.fillStyle = COMP_COLORS[c.id] || '#ffffff';
+      ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.stroke();
+      ctx.font = '14px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(cdef ? cdef.icon : '❔', c.x, c.y);
+      ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+    }
     // 스래시
     for (const s of G.slashes) {
       ctx.strokeStyle = 'rgba(255,255,255,' + (s.t / s.maxT * 0.8) + ')';
@@ -1016,6 +1155,7 @@
     goStats.innerHTML = statsHtml(recordStats());
     gameoverModal.classList.remove('hidden');
     hudEl.style.display = 'none';
+    document.getElementById('compChip').style.display = 'none';
   }
   function winGame() {
     if (G.state === 'win') return;
@@ -1023,12 +1163,36 @@
     winStats.innerHTML = statsHtml(recordStats());
     winModal.classList.remove('hidden');
     hudEl.style.display = 'none';
+    document.getElementById('compChip').style.display = 'none';
   }
+
+  // ===== 동료 선택 =====
+  let chosenCompId = localStorage.getItem('rogue_comp') || 'warrior';
+  const compCardsEl = document.getElementById('compCards');
+  function renderCompCards() {
+    compCardsEl.innerHTML = '';
+    for (const c of CONFIG.COMPANIONS) {
+      const d = document.createElement('div');
+      d.className = 'comp-card' + (c.id === chosenCompId ? ' selected' : '');
+      d.innerHTML = '<div class="comp-icon">' + c.icon + '</div><div class="comp-name">' + c.name + '</div><div class="comp-desc">' + c.desc + '</div>';
+      d.addEventListener('click', () => {
+        chosenCompId = c.id;
+        localStorage.setItem('rogue_comp', c.id);
+        renderCompCards();
+      });
+      compCardsEl.appendChild(d);
+    }
+  }
+  renderCompCards();
 
   // ===== 시작 / 재시작 =====
   function startGame() {
     G = newRun();
     G.state = 'playing';
+    const _cd = CONFIG.COMPANIONS.find(x => x.id === G.companion.id);
+    const _chip = document.getElementById('compChip');
+    _chip.textContent = _cd.icon + ' ' + _cd.name;
+    _chip.style.display = 'block';
     G.banner = '스테이지 1'; G.bannerT = 1.8;
     startModal.classList.add('hidden');
     gameoverModal.classList.add('hidden');
@@ -1105,6 +1269,7 @@
       G.time += dt;
       updateSkills(dt);
       updatePlayer(dt);
+      updateCompanion(dt);
       updateEnemies(dt);
       updateProjectiles(dt);
       updatePickups(dt);
