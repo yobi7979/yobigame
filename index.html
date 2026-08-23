@@ -131,7 +131,7 @@
   // ===== 상수 =====
   const PLAYER = {
     speed: 220, hp: 120, maxHp: 120,
-    atkDmg: 18, atkCd: 0.5, atkRange: 40,
+    atkDmg: 18, atkCd: 0.5, atkRange: 55,
     xpRadius: 60, invuln: 0.3, radius: 14,
   };
   const WORLD = { w: 2400, h: 1800 };
@@ -214,7 +214,7 @@
         hp: PLAYER.hp, maxHp: PLAYER.maxHp,
         shield: 0, shieldDur: 0,
         xp: 0, level: 1,
-        skills: {}, atkTimer: 0, invulnTimer: 0, skillTimers: {},
+        skills: { shield: 1 }, atkTimer: 0, invulnTimer: 0, skillTimers: {},
         facing: { x: 1, y: 0 }, flash: 0, trail: [], animT: 0, moving: false,
       },
       enemies: [], projectiles: [], pickups: [], particles: [], slashes: [], floaters: [],
@@ -278,6 +278,14 @@
   }
 
   // ===== 데미지 =====
+  // power 패시브: 전체 데미지 배율 (근접 + 스킬 직접 피해)
+  function dmgMul() {
+    if (G && G.player && G.player.skills.power) {
+      const s = skillStats('power', G.player.skills.power);
+      if (s) return 1 + s.pct / 100;
+    }
+    return 1;
+  }
   function damageEnemy(e, dmg, opts = {}) {
     e.hp -= dmg;
     e.hitFlash = 0.1;
@@ -344,12 +352,12 @@
         const cdMul = p.skills.multishot ? (p.skills.multishot >= 4 ? 0.9 : 1) * (p.skills.multishot >= 5 ? 0.9 : 1) : 1;
         p.atkTimer = PLAYER.atkCd * cdMul / hits;
         for (const t of targets) {
-          for (let i = 0; i < hits; i++) damageEnemy(t, PLAYER.atkDmg * (i === 0 ? 1 : 0.5), { fromMelee: true });
+          for (let i = 0; i < hits; i++) damageEnemy(t, PLAYER.atkDmg * (i === 0 ? 1 : 0.5) * dmgMul(), { fromMelee: true });
           G.particles.push({ x: t.x, y: t.y, vx: (Math.random()-.5)*80, vy: (Math.random()-.5)*80, life: .12, maxLife: .12, color: '#fff', size: 4 });
         }
         // 슬래시 이펙트
         const a = Math.atan2(targets[0].y - p.y, targets[0].x - p.x);
-        G.slashes.push({ x: p.x, y: p.y, angle: a, t: 0.16, maxT: 0.16 });
+        G.slashes.push({ x: p.x, y: p.y, angle: a, range, t: 0.16, maxT: 0.16 });
       }
     }
   }
@@ -458,7 +466,7 @@
           if (e.hp <= 0 || (pr.hitSet && pr.hitSet.has(e))) continue;
           const rr = e.radius + pr.r;
           if (dist2(e, pr) < rr * rr) {
-            damageEnemy(e, pr.dmg);
+            damageEnemy(e, pr.dmg * dmgMul());
             if (pr.burn && e.hp > 0) { e.burn = pr.burn; e.burnDps = pr.burnDps; }
             const sp = p.skills.split ? skillStats('split', p.skills.split) : null;
             if (sp && !pr.noSplit) {
@@ -526,7 +534,7 @@
               }
               G.lightnings.push({ pts: [{ x: p.x, y: p.y }].concat(hitList.map(e => ({ x: e.x, y: e.y }))), t: 0.15, maxT: 0.15 });
               for (const e of hitList) {
-                damageEnemy(e, st.dmg);
+                damageEnemy(e, st.dmg * dmgMul());
                 if (st.slow && e.hp > 0) { e.slow = Math.max(e.slow, st.slow); e.slowDur = Math.max(e.slowDur || 0, st.slowDur); }
               }
             }
@@ -554,7 +562,7 @@
           for (const e of G.enemies) {
             if (e.hp <= 0) continue;
             if (dist2(e, p) < st.radius * st.radius) {
-              damageEnemy(e, st.dps * dt);
+              damageEnemy(e, st.dps * dt * dmgMul());
               if (st.stun && e.hp > 0 && Math.random() < (st.stunChance / 100) * dt * 10) e.stun = Math.max(e.stun, st.stun);
             }
           }
@@ -571,13 +579,13 @@
               t = st.cd;
               G.explosions.push({ x: best.x, y: best.y, r: st.radius, t: 0.4, maxT: 0.4 });
               for (const e of G.enemies) {
-                if (e.hp > 0 && dist2(e, best) < st.radius * st.radius) damageEnemy(e, st.dmg);
+                if (e.hp > 0 && dist2(e, best) < st.radius * st.radius) damageEnemy(e, st.dmg * dmgMul());
               }
               G.shake = Math.min(1, G.shake + 0.3);
             }
           }
           break;
-        // multishot / lifesteal / speed: 패시브 (updatePlayer·damageEnemy에서 적용)
+        // multishot / lifesteal / speed / power: 패시브 (updatePlayer·dmgMul에서 적용)
       }
       p.skillTimers[id] = t;
     }
@@ -718,8 +726,8 @@
   const restartBtn = document.getElementById('restartBtn');
   const winRestartBtn = document.getElementById('winRestartBtn');
 
-  const SKILL_ICONS = { fireball: '🔥', chainlightning: '⚡', shield: '🛡️', multishot: '🗡️', lifesteal: '🩸', slowfield: '❄️', split: '✳️', spinblade: '🌀', explosion: '💥', speed: '💨' };
-  const SKILL_NAMES = { fireball: '파이어볼', chainlightning: '체인 라이트닝', shield: '시ールド', multishot: '멀티샷', lifesteal: '라이프스틸', slowfield: '슬로필드', split: '스플릿', spinblade: '스핀 블레이드', explosion: '익스플로전', speed: '이동 속도' };
+  const SKILL_ICONS = { fireball: '🔥', chainlightning: '⚡', shield: '🛡️', multishot: '🗡️', lifesteal: '🩸', slowfield: '❄️', split: '✳️', spinblade: '🌀', explosion: '💥', speed: '💨', power: '💪' };
+  const SKILL_NAMES = { fireball: '파이어볼', chainlightning: '체인 라이트닝', shield: '시ールド', multishot: '멀티샷', lifesteal: '라이프스틸', slowfield: '슬로필드', split: '스플릿', spinblade: '스핀 블레이드', explosion: '익스플로전', speed: '이동 속도', power: '데미지 강화' };
   function skillDescLine(id, st) {
     switch (id) {
       case 'fireball': return st.dmg + ' 데미지 / ' + st.cd + '초' + (st.pierce ? ' / 관통 ' + st.pierce : '') + (st.burn ? ' / 지속 피해' : '');
@@ -732,6 +740,7 @@
       case 'spinblade': return '반경 ' + st.radius + ' / ' + st.dps + ' DPS' + (st.stun ? ' / 스툰' : '');
       case 'explosion': return '반경 ' + st.radius + ' / ' + st.dmg + ' 데미지 / ' + st.cd + '초';
       case 'speed': return '이동 속도 +' + st.pct + '%';
+      case 'power': return '전체 공격력 +' + st.pct + '%';
     }
     return '';
   }
@@ -869,7 +878,7 @@
     for (const s of G.slashes) {
       ctx.strokeStyle = 'rgba(255,255,255,' + (s.t / s.maxT * 0.8) + ')';
       ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(s.x, s.y, 46, s.angle - 0.8, s.angle + 0.8); ctx.stroke();
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.range || 46, s.angle - 0.8, s.angle + 0.8); ctx.stroke();
     }
     // 파티클
     for (const pt of G.particles) {

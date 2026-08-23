@@ -80,6 +80,9 @@ const CONFIG = {
     speed: [
       { pct: 10 }, { pct: 20 }, { pct: 30 }, { pct: 40 }, { pct: 50 },
     ],
+    power: [
+      { pct: 10 }, { pct: 20 }, { pct: 30 }, { pct: 40 }, { pct: 50 },
+    ],
   },
 };
 
