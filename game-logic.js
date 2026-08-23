@@ -4,22 +4,22 @@
 // ===== 스테이지 구성 (계획서 2.3절) =====
 const CONFIG = {
   STAGES: [
-    { time: 120, ratio: { basic: 1, fast: 0, tanky: 0, ranged: 0 }, clearKills: 40, boss: false },
-    { time: 150, ratio: { basic: 0.7, fast: 0.3, tanky: 0, ranged: 0 }, clearKills: 60, boss: false },
-    { time: 180, ratio: { basic: 0.5, fast: 0.25, tanky: 0.15, ranged: 0.1 }, clearKills: 90, boss: false },
-    { time: 180, ratio: { basic: 0.4, fast: 0.25, tanky: 0.2, ranged: 0.15 }, clearKills: 120, boss: false },
-    { time: 210, ratio: { basic: 0.35, fast: 0.25, tanky: 0.2, ranged: 0.2 }, clearKills: 150, boss: true }, // miniboss
-    { time: 210, ratio: { basic: 0.3, fast: 0.25, tanky: 0.25, ranged: 0.2 }, clearKills: 200, boss: false },
-    { time: 240, ratio: { basic: 0.25, fast: 0.25, tanky: 0.25, ranged: 0.25 }, clearKills: 260, boss: false },
+    { time: 120, ratio: { basic: 1, fast: 0, tanky: 0, ranged: 0 }, clearKills: 20, boss: false },
+    { time: 150, ratio: { basic: 0.7, fast: 0.3, tanky: 0, ranged: 0 }, clearKills: 30, boss: false },
+    { time: 180, ratio: { basic: 0.5, fast: 0.25, tanky: 0.15, ranged: 0.1 }, clearKills: 40, boss: false },
+    { time: 180, ratio: { basic: 0.4, fast: 0.25, tanky: 0.2, ranged: 0.15 }, clearKills: 50, boss: false },
+    { time: 210, ratio: { basic: 0.35, fast: 0.25, tanky: 0.2, ranged: 0.2 }, clearKills: 60, boss: true }, // miniboss
+    { time: 210, ratio: { basic: 0.3, fast: 0.25, tanky: 0.25, ranged: 0.2 }, clearKills: 80, boss: false },
+    { time: 240, ratio: { basic: 0.25, fast: 0.25, tanky: 0.25, ranged: 0.25 }, clearKills: 100, boss: false },
     { time: 270, ratio: { basic: 0.2, fast: 0.25, tanky: 0.25, ranged: 0.3 }, clearKills: 0, boss: true }, // final boss
   ],
   ENEMIES: {
-    basic:    { hp: 30,  speed: 90,  dmg: 10, xp: 1  },
-    fast:     { hp: 15,  speed: 170, dmg: 8,  xp: 1  },
-    tanky:    { hp: 120, speed: 55,  dmg: 18, xp: 3  },
-    ranged:   { hp: 20,  speed: 80,  dmg: 12, xp: 2  },
-    miniboss: { hp: 800, speed: 70,  dmg: 25, xp: 20 },
-    boss:     { hp: 12000, speed: 70, dmg: 35, xp: 100 },
+    basic:    { hp: 30,  speed: 90,  dmg: 14, xp: 2  },
+    fast:     { hp: 15,  speed: 170, dmg: 12, xp: 2  },
+    tanky:    { hp: 120, speed: 55,  dmg: 26, xp: 4  },
+    ranged:   { hp: 20,  speed: 80,  dmg: 18, xp: 3  },
+    miniboss: { hp: 800, speed: 70,  dmg: 30, xp: 30 },
+    boss:     { hp: 12000, speed: 70, dmg: 40, xp: 150 },
   },
   SKILLS: {
     fireball: [
@@ -86,10 +86,10 @@ const CONFIG = {
 const MAX_SKILL_LEVEL = 5;
 
 // ===== 경험치 곡선 =====
-// 레벨 n → n+1 에 필요한 XP (밸런스 조정: 기반 10 — 첫 스킬 획득을 앞당김)
+// 레벨 n → n+1 에 필요한 XP (베이스 10→5, 절반으로 감속 완화 — 레벨업 가속)
 function xpForLevel(n) {
   if (n < 1) return null;
-  return Math.round(10 * Math.pow(1.5, n - 1));
+  return Math.round(5 * Math.pow(1.35, n - 1));
 }
 
 // 누적 XP → 도달 레벨 (Lv1 시작)
