@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>⚔️ Survival Roguelike</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #0a0a12; overflow: hidden; font-family: 'Segoe UI', sans-serif; color: #fff; }
-  canvas { display: block; }
+  canvas { display: block; touch-action: none; }
   /* HUD */
   .hud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 20px; display: flex; gap: 20px; align-items: center; background: linear-gradient(180deg, rgba(0,0,0,0.7), transparent); pointer-events: none; z-index: 10; }
   .bar-wrap { flex: 1; max-width: 300px; }
@@ -837,6 +837,16 @@
       ctx.fillText(G.banner, canvas.width / 2, canvas.height / 2 - 60);
       ctx.globalAlpha = 1;
     }
+    // 터치 조이스틱 (화면 좌표)
+    if (joy.active) {
+      ctx.globalAlpha = 0.35;
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(joy.ox, joy.oy, JOY_R, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath(); ctx.arc(joy.ox + joy.dx, joy.oy + joy.dy, 26, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
     updateHUD();
   }
 
@@ -962,6 +972,51 @@
     keys[k] = true;
   });
   addEventListener('keyup', (ev) => { keys[ev.key.toLowerCase()] = false; });
+
+  // ===== 터치 컨트롤 (모바일 가상 조이스틱) =====
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  const joy = { active: false, id: -1, ox: 0, oy: 0, dx: 0, dy: 0 };
+  const JOY_R = 70, JOY_DEAD = 12;
+  function joySetKeys() {
+    keys.w = joy.dy < -JOY_DEAD; keys.s = joy.dy > JOY_DEAD;
+    keys.a = joy.dx < -JOY_DEAD; keys.d = joy.dx > JOY_DEAD;
+  }
+  if (isTouch) {
+    addEventListener('touchstart', (e) => {
+      if (joy.active || e.target !== canvas) return;
+      const r = canvas.getBoundingClientRect();
+      const t = e.changedTouches[0];
+      joy.active = true; joy.id = t.identifier;
+      joy.ox = (t.clientX - r.left) * canvas.width / r.width;
+      joy.oy = (t.clientY - r.top) * canvas.height / r.height;
+      joy.dx = 0; joy.dy = 0;
+      e.preventDefault();
+    }, { passive: false });
+    addEventListener('touchmove', (e) => {
+      if (!joy.active) return;
+      const r = canvas.getBoundingClientRect();
+      for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        if (t.identifier !== joy.id) continue;
+        let dx = (t.clientX - r.left) * canvas.width / r.width - joy.ox;
+        let dy = (t.clientY - r.top) * canvas.height / r.height - joy.oy;
+        const len = Math.hypot(dx, dy);
+        if (len > JOY_R) { dx = dx / len * JOY_R; dy = dy / len * JOY_R; }
+        joy.dx = dx; joy.dy = dy;
+      }
+      joySetKeys();
+      e.preventDefault();
+    }, { passive: false });
+    const joyEnd = (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier !== joy.id) continue;
+        joy.active = false; joy.id = -1; joy.dx = 0; joy.dy = 0;
+        joySetKeys();
+      }
+    };
+    addEventListener('touchend', joyEnd);
+    addEventListener('touchcancel', joyEnd);
+  }
 
   // ===== 게임 루프 =====
   let last = 0;
