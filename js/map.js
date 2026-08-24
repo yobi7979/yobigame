@@ -73,6 +73,9 @@ function genDungeon(rand = Math.random) {
     if (r < rows - 1) { if (!hW[c * (rows-1) + r]) open++; else closed.push(['h', c * (rows-1) + r]); }
     if (open === 1) { const [k, wi] = closed[Math.floor(rand() * closed.length)]; if (k === 'v') vW[wi] = 0; else hW[wi] = 0; }
   }
+  // 4) 추가 개방: 남은 닫힌 벽을 45% 확률로 더 열기 (단순한 맵)
+  for (let wi = 0; wi < vW.length; wi++) if (vW[wi] && rand() < 0.45) vW[wi] = 0;
+  for (let wi = 0; wi < hW.length; wi++) if (hW[wi] && rand() < 0.45) hW[wi] = 0;
   MAP.vW = vW; MAP.hW = hW;
 
   // 3) 벽 사각형 리스트 (충돌 + 렌더 공용)

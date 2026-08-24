@@ -231,6 +231,29 @@ function updateEnemies(dt) {
         }
         break;
     }
+    // 보스 텔레포트: 플레이어로부터 멀어지면 쿨타임 후 가까이 순간이동
+    if (e.type === 'boss' || e.type === 'miniboss') {
+      if (e.teleCd === undefined) e.teleCd = 1.5;
+      e.teleCd -= dt;
+      if (e.teleCd <= 0 && d > 480) {
+        let spot = null;
+        for (let i = 0; i < 24 && !spot; i++) {
+          const a = Math.random() * Math.PI * 2, r = 200 + Math.random() * 60;
+          const tx = p.x + Math.cos(a) * r, ty = p.y + Math.sin(a) * r;
+          if (tx < 40 || tx > WORLD.w - 40 || ty < 40 || ty > WORLD.h - 40) continue;
+          if (pointInWall(tx, ty)) continue;
+          let bad = false;
+          for (const o of G.enemies) if (o !== e && o.hp > 0 && (o.x - tx) ** 2 + (o.y - ty) ** 2 < 14400) { bad = true; break; }
+          if (!bad) spot = { x: tx, y: ty };
+        }
+        if (spot) {
+          for (let i = 0; i < 10; i++) G.particles.push({ x: e.x, y: e.y, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, life: .35, maxLife: .35, color: '#b07cff', size: 3 });
+          for (let i = 0; i < 10; i++) G.particles.push({ x: spot.x, y: spot.y, vx: (Math.random() - .5) * 220, vy: (Math.random() - .5) * 220, life: .35, maxLife: .35, color: '#b07cff', size: 3 });
+          e.x = spot.x; e.y = spot.y; e.teleCd = 5;
+          G.shake = Math.min(1, G.shake + 0.15);
+        } else e.teleCd = 1;
+      }
+    }
     moveWithWalls(e, mx * spd * dt, my * spd * dt, e.radius);
     // 충돌 데미지
     const rr = e.radius + p.radius;
