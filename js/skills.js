@@ -110,9 +110,11 @@ function updateSkills(dt) {
         p.evoSpinAcc[id] = (p.evoSpinAcc[id] || 0) + dt;
         if (p.evoSpinAcc[id] >= (st.tick || 0.4)) {
           p.evoSpinAcc[id] = 0;
+          let spinIn = false;
           for (const e of G.enemies) {
             if (e.hp <= 0) continue;
             if (dist2(e, p) <= st.radius * st.radius) {
+              spinIn = true;
               damageEnemy(e, st.dps * (st.tick || 0.4) * dmgMul(), { skillId: id });
               if (e.hp <= 0) continue;
               if (evo.effect === 'kb') {
@@ -122,11 +124,13 @@ function updateSkills(dt) {
               } else applyStatus(e, evo.effect, st, id);
             }
           }
+          spinSfx(spinIn);
         }
       } else if (t <= 0) {
         const e0 = nearestEnemy(p.x, p.y, 450);
         if (e0) {
           t = st.cd;
+          playSfx(evo.form === 'aoe' ? 'explosion' : evo.form === 'wave' ? 'tidal' : evo.form === 'chain' ? 'chainlightning' : id.replace('evo_', '').split('_')[0]);
           if (evo.form === 'aoe') {
             boom(e0.x, e0.y, st.radius, 0.3);
             for (const e of G.enemies) {
@@ -169,6 +173,7 @@ function updateSkills(dt) {
             t = st.cd;
             const a = Math.atan2(e.y - p.y, e.x - p.x);
             G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * 420, vy: Math.sin(a) * 420, dmg: st.dmg, friendly: true, r: 7, life: 1.4, pierce: st.pierce, burn: st.burn || 0, burnDps: st.burnDps || 0, skillId: 'fireball' });
+            playSfx('fireball');
           }
         }
         break;
@@ -191,6 +196,7 @@ function updateSkills(dt) {
               damageEnemy(e, st.dmg * dmgMul(), { skillId: 'chainlightning' });
               if (st.slow && e.hp > 0) { e.slow = Math.max(e.slow, st.slow); e.slowDur = Math.max(e.slowDur || 0, st.slowDur); }
             }
+            playSfx('chainlightning');
           }
         }
         break;
@@ -198,6 +204,7 @@ function updateSkills(dt) {
         if (p.shield <= 0 && t <= 0) {
           p.shield = st.hp; p.shieldDur = st.dur; t = 0.5;
           G.particles.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .4, maxLife: .4, color: '#4dabf7', size: p.radius + 8, ring: true });
+          playSfx('shield');
         }
         break;
       case 'slowfield':
@@ -209,17 +216,20 @@ function updateSkills(dt) {
               e.slow = Math.max(e.slow, st.pct); e.slowDur = Math.max(e.slowDur || 0, 1); any = true;
             }
           }
-          if (any) G.slowfieldFx.push({ x: p.x, y: p.y, r: st.radius, t: 0.3, maxT: 0.3 });
+          if (any) { G.slowfieldFx.push({ x: p.x, y: p.y, r: st.radius, t: 0.3, maxT: 0.3 }); playSfx('slowfield'); }
         }
         break;
       case 'spinblade':
+        let spinInB = false;
         for (const e of G.enemies) {
           if (e.hp <= 0) continue;
           if (dist2(e, p) < st.radius * st.radius) {
+            spinInB = true;
             damageEnemy(e, st.dps * dt * dmgMul(), { skillId: 'spinblade' });
             if (st.stun && e.hp > 0 && Math.random() < (st.stunChance / 100) * dt * 10) e.stun = Math.max(e.stun, st.stun);
           }
         }
+        spinSfx(spinInB);
         break;
       case 'explosion':
         if (t <= 0) {
@@ -232,6 +242,7 @@ function updateSkills(dt) {
           if (best && bestN >= 1) {
             t = st.cd;
             boom(best.x, best.y, st.radius, 0.3);
+            playSfx('explosion');
             for (const e of G.enemies) {
               if (e.hp > 0 && dist2(e, best) < st.radius * st.radius) damageEnemy(e, st.dmg * dmgMul(), { skillId: 'explosion' });
             }
@@ -245,6 +256,7 @@ function updateSkills(dt) {
             t = st.cd;
             const a2 = Math.atan2(e2.y - p.y, e2.x - p.x);
             G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a2) * 500, vy: Math.sin(a2) * 500, dmg: st.dmg, friendly: true, r: 6, life: 1.6, slow: st.slow || 0, slowDur: st.slowDur || 0, skillId: 'iceshard', color: '#7adfff' });
+            playSfx('iceshard');
           }
         }
         break;
@@ -252,6 +264,7 @@ function updateSkills(dt) {
         if (t <= 0) {
           t = st.cd;
           G.waves.push({ x: p.x, y: p.y, r: 40, maxR: 260, speed: 320, dmg: st.dmg, kb: st.kb, skillId: 'tidal', hit: new Set() });
+          playSfx('tidal');
         }
         break;
       case 'poison':
@@ -261,6 +274,7 @@ function updateSkills(dt) {
             t = st.cd;
             const a3 = Math.atan2(e3.y - p.y, e3.x - p.x);
             G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a3) * 380, vy: Math.sin(a3) * 380, dmg: st.dmg, friendly: true, r: 5, life: 1.8, poisonDps: st.pdps, skillId: 'poison', color: '#6fce58' });
+            playSfx('poison');
           }
         }
         break;

@@ -120,6 +120,7 @@ function chooseSkill(i) {
   } else {
     G.player.skills[c.id] = c.toLevel;
     G.player.skillTimers[c.id] = 0;
+    playSfx(c.id);
   }
   G.levelupQueue--;
   levelupModal.classList.add('hidden');
@@ -215,6 +216,7 @@ function chooseEvolve(i) {
   if (!ev) return;
   G.player.skills = evolveSkills(G.player, ev.a, ev.b);
   G.player.skillTimers[ev.id] = 0;
+  playSfx(ev.a);
   evolveModal.classList.add('hidden');
   G.state = 'playing';
   updateHUD();

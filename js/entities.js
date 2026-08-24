@@ -296,6 +296,7 @@ function updateProjectiles(dt) {
         const rr = e.radius + pr.r;
         if (dist2(e, pr) < rr * rr) {
           damageEnemy(e, pr.dmg * dmgMul(), pr.skillId ? { skillId: pr.skillId } : {});
+          sfxHit();
           if (pr.burn && e.hp > 0) { e.burn = pr.burn; e.burnDps = pr.burnDps; }
           if (pr.slow && e.hp > 0) { e.slow = Math.max(e.slow, pr.slow); e.slowDur = Math.max(e.slowDur || 0, pr.slowDur); }
           if (pr.poisonDps && e.hp > 0) { e.poisonDps = Math.max(e.poisonDps || 0, pr.poisonDps); e.poisonDur = Math.max(e.poisonDur || 0, 3); }
@@ -317,6 +318,7 @@ function updateProjectiles(dt) {
       if (dist2(p, pr) < rr * rr && p.invulnTimer <= 0) {
         pr.dead = true;
         p.invulnTimer = PLAYER.invuln; p.flash = 0.2;
+        sfxHurt();
         let dmg = pr.dmg;
         if (p.shield > 0) {
           const sh = p.skills.shield ? skillStats('shield', p.skills.shield) : null;

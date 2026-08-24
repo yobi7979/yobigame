@@ -16,7 +16,7 @@ function updatePickups(dt) {
       pk.x += ((p.x - pk.x) / d) * 300 * dt;
       pk.y += ((p.y - pk.y) / d) * 300 * dt;
     }
-    if (d2 < 24 * 24) { pk.dead = true; gained += pk.xp; }
+    if (d2 < 24 * 24) { pk.dead = true; gained += pk.xp; sfxPickup(); }
   }
   G.pickups = G.pickups.filter(pk => !pk.dead);
   if (gained > 0) {
@@ -25,6 +25,7 @@ function updatePickups(dt) {
       p.xp -= xpForLevel(p.level);
       p.level++;
       G.levelupQueue++;
+      sfxLevel();
     }
     if (G.levelupQueue > 0 && G.state === 'playing') openLevelup();
   }
