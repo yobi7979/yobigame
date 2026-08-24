@@ -1,0 +1,79 @@
+[
+ {
+  "name": "player",
+  "seed": 67369477,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\player_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\player_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\player_f2.png"
+  ],
+  "raw": "anim_player_00003_.png"
+ },
+ {
+  "name": "enemy_basic",
+  "seed": 2106899581,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_basic_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_basic_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_basic_f2.png"
+  ],
+  "raw": "anim_enemy_basic_00003_.png"
+ },
+ {
+  "name": "enemy_fast",
+  "seed": 2060398856,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_fast_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_fast_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_fast_f2.png"
+  ],
+  "raw": "anim_enemy_fast_00003_.png"
+ },
+ {
+  "name": "enemy_tanky",
+  "seed": 1122015437,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_tanky_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_tanky_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_tanky_f2.png"
+  ],
+  "raw": "anim_enemy_tanky_00003_.png"
+ },
+ {
+  "name": "enemy_ranged",
+  "seed": 1271778073,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_ranged_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_ranged_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_ranged_f2.png"
+  ],
+  "raw": "anim_enemy_ranged_00003_.png"
+ },
+ {
+  "name": "enemy_miniboss",
+  "seed": 1516382123,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_miniboss_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_miniboss_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_miniboss_f2.png"
+  ],
+  "raw": "anim_enemy_miniboss_00003_.png"
+ },
+ {
+  "name": "enemy_boss",
+  "seed": 740343885,
+  "status": "ok",
+  "frames": [
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_boss_f0.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_boss_f1.png",
+   "D:\\vs\\헤르메스테스트\\assets\\enemy_boss_f2.png"
+  ],
+  "raw": "anim_enemy_boss_00003_.png"
+ }
+]

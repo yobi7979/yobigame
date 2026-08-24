@@ -1,0 +1,398 @@
+[
+  {
+    "name": "player",
+    "w": 256,
+    "h": 256,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Hero game sprite: a small brave knight in white and gold armor, round helmet, glowing golden emblem on the chest, short sword in hand, confident front-facing standing pose, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "enemy_basic",
+    "w": 256,
+    "h": 256,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Small imp game sprite: a tiny red goblin with pointy ears and small horns, mischievous grin, red skin, hunched aggressive stance, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "enemy_fast",
+    "w": 256,
+    "h": 256,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Fast fox game sprite: a sleek bright green fox with pointed ears and a big bushy tail, dynamic leaping mid-air pose, sharp eyes, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "enemy_tanky",
+    "w": 256,
+    "h": 256,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Heavy golem game sprite: a bulky purple stone golem with thick overlapping armor plates, glowing purple crystal on the chest, blocky powerful build, slow menacing posture, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "enemy_ranged",
+    "w": 256,
+    "h": 256,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Mage game sprite: a blue hooded wizard holding a glowing magic staff, flowing robe, one hand raised in a casting pose, mystical blue color scheme, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "enemy_miniboss",
+    "w": 256,
+    "h": 256,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Demon warrior game sprite: a large menacing dark green demon with curved horns and glowing yellow eyes, muscular build, imposing battle stance with clawed hands, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "enemy_boss",
+    "w": 512,
+    "h": 512,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Final boss game sprite: a giant fearsome dragon demon with huge tattered wings, glowing red eyes, fiery aura around its body, dominant centered composition filling the frame, crimson and dark red color scheme, flat vector 2D game sprite, clean bold silhouette, simple geometric design, matte finish, subtle soft shading, thick dark outline, centered full body, isolated on pure solid black background, no text, no watermark, no frame, high contrast"
+  },
+  {
+    "name": "xp_orb",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Glowing magic energy orb icon: a small sphere of soft green-gold light with a bright white core and radial glow, magical floating particles around it, centered, isolated on pure solid black background, no text, no watermark, no frame, flat vector game icon, high contrast"
+  },
+  {
+    "name": "icon_fireball",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: a burning orange fireball with a flame tongue on top and small spark particles, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_chainlightning",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: a jagged electric blue lightning bolt striking downward in a zigzag chain with two smaller branches, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_shield",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: a blue metallic shield emblem with a golden cross in the center, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_multishot",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: three white silver short swords crossed in a fan shape pointing up, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_lifesteal",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: a red blood droplet with a small dark bat silhouette behind it, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_slowfield",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: an icy blue six-pointed snowflake crystal with a frosty ring around it, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_split",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: one orange arrow flying right that splits into three diverging beams, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_spinblade",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: a purple circular saw blade disc with sharp teeth and motion swirl lines, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_explosion",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: an orange yellow starburst explosion with a shockwave ring, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "icon_speed",
+    "w": 128,
+    "h": 128,
+    "gw": 1024,
+    "gh": 1024,
+    "post": "key",
+    "prompt": "Game ability icon: yellow green wind dash speed streaks with a small lightning bolt in the center, flat vector game UI icon, bold simple centered symbol, circular badge design, dark slate badge with bright gold rim, glowing central symbol, isolated on pure solid black background, no text, no watermark"
+  },
+  {
+    "name": "bg_tile",
+    "w": 512,
+    "h": 512,
+    "gw": 512,
+    "gh": 512,
+    "post": "none",
+    "prompt": "Seamless tileable dark dungeon stone floor texture, very dark charcoal blue tones, subtle cracks and faint moss patches, low contrast, uniform top-down lighting, no objects, no characters, no text, no watermark"
+  },
+  {
+    "name": "title_art",
+    "w": 1024,
+    "h": 512,
+    "gw": 1024,
+    "gh": 512,
+    "post": "none",
+    "prompt": "Dark fantasy wide banner scene: a lone small hero silhouette standing before a massive glowing dungeon gate, dramatic golden light beams pouring through, floating embers in the air, very dark moody atmosphere, cinematic wide composition, no text, no watermark"
+  },
+  {
+    "name": "icon_iceshard",
+    "prompt": "Game ability icon: a sharp ice crystal dagger pointing upper right with frost particles and a light blue glow, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_tidal",
+    "prompt": "Game ability icon: a rising turquoise water wave curling over a water droplet splash, dynamic arc, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_poison",
+    "prompt": "Game ability icon: a green poison droplet with a small white skull symbol and toxic vapor bubbles, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_chainlightning_fireball",
+    "prompt": "Game ability icon: an orange violet plasma orb bolt with an electric trail and piercing streaks, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_fireball_poison",
+    "prompt": "Game ability icon: a green toxic flame burning with a smoke wisp and a small skull spark, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_iceshard_poison",
+    "prompt": "Game ability icon: a frozen ice shard dripping green poison liquid with frost crystals and bubbles, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_chainlightning_iceshard",
+    "prompt": "Game ability icon: a jagged blue lightning bolt wrapped in ice crystals and frost shards, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_chainlightning_poison",
+    "prompt": "Game ability icon: a green electric lightning bolt with venom drips and static sparks, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_fireball_spinblade",
+    "prompt": "Game ability icon: a burning orange spinning blade disc with flame swirls and sparks, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_chainlightning_spinblade",
+    "prompt": "Game ability icon: a spinning blade disc wrapped in blue electric arcs and lightning, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_explosion_spinblade",
+    "prompt": "Game ability icon: a dark red spinning blade vortex with explosion starburst fragments, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_iceshard_spinblade",
+    "prompt": "Game ability icon: a ring of icy blue spinning blades with frost crystals and a snow swirl, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_spinblade_tidal",
+    "prompt": "Game ability icon: a swirling turquoise whirlpool water vortex with a blade arc, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_poison_spinblade",
+    "prompt": "Game ability icon: a green poison spinning blade ring with toxic drips and bubbles, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_explosion_fireball",
+    "prompt": "Game ability icon: a fiery orange meteor rock with a flame trail and explosion impact, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_fireball_iceshard",
+    "prompt": "Game ability icon: a white orange steam explosion burst with swirling vapor and heat waves, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_chainlightning_explosion",
+    "prompt": "Game ability icon: a blue lightning explosion burst with an electric shockwave ring, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_explosion_iceshard",
+    "prompt": "Game ability icon: an icy blue nova explosion with frost crystal shards radiating outward, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_explosion_tidal",
+    "prompt": "Game ability icon: a turquoise water explosion blast with a crashing wave crown and droplets, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_explosion_poison",
+    "prompt": "Game ability icon: a green poison bomb explosion with a toxic cloud and bubbling splatter, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_fireball_tidal",
+    "prompt": "Game ability icon: a boiling orange water wave with steam bubbles and fire sparks, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_chainlightning_tidal",
+    "prompt": "Game ability icon: a turquoise water wave charged with blue electric arcs and sparks, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_iceshard_tidal",
+    "prompt": "Game ability icon: a frozen ice wave crest with snow crystals and frost mist, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  },
+  {
+    "name": "icon_evo_poison_tidal",
+    "prompt": "Game ability icon: a green poisoned water wave with toxic bubbles and a sickly glow, flat vector game UI icon, bold simple centered symbol, circular badge design, black background",
+    "gw": 1024,
+    "gh": 1024,
+    "w": 128,
+    "h": 128,
+    "post": "key"
+  }
+]

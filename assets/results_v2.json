@@ -1,0 +1,133 @@
+[
+ {
+  "name": "player_f0",
+  "seed": 2127163362,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_player_f0_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "player_f1",
+  "seed": 98194311,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_player_f1_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "comp_warrior_f0",
+  "seed": 998612644,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_warrior_f0_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "comp_warrior_f1",
+  "seed": 560113407,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_warrior_f1_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "comp_warrior_f2",
+  "seed": 1909306350,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_warrior_f2_00001_.png",
+  "secs": 10.2
+ },
+ {
+  "name": "comp_guardian_f0",
+  "seed": 1672403548,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_guardian_f0_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "comp_guardian_f1",
+  "seed": 894583792,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_guardian_f1_00001_.png",
+  "secs": 15.1
+ },
+ {
+  "name": "comp_guardian_f2",
+  "seed": 1772739694,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_guardian_f2_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "comp_shadow_f2",
+  "seed": 1779631253,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_shadow_f2_00001_.png",
+  "secs": 10.1
+ },
+ {
+  "name": "comp_shadow_f0",
+  "seed": null,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_shadow_f0_00001_.png",
+  "note": "rekeyed white bg"
+ },
+ {
+  "name": "comp_shadow_f1",
+  "seed": null,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_comp_shadow_f1_00001_.png",
+  "note": "rekeyed white bg"
+ },
+ {
+  "name": "player_f2",
+  "seed": 1893090786,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_player_f2_fix_00001_.png"
+ }
+]

@@ -1,0 +1,442 @@
+[
+ {
+  "name": "player",
+  "seed": 2086022170,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_player_00001_.png"
+ },
+ {
+  "name": "enemy_basic",
+  "seed": 2077124441,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_enemy_basic_00001_.png"
+ },
+ {
+  "name": "enemy_fast",
+  "seed": 867661121,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_enemy_fast_00001_.png"
+ },
+ {
+  "name": "enemy_tanky",
+  "seed": 594933221,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_enemy_tanky_00001_.png"
+ },
+ {
+  "name": "enemy_ranged",
+  "seed": 1505326112,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_enemy_ranged_00001_.png"
+ },
+ {
+  "name": "enemy_miniboss",
+  "seed": 1582925932,
+  "status": "ok",
+  "size": [
+   256,
+   256
+  ],
+  "raw": "gen_enemy_miniboss_00001_.png"
+ },
+ {
+  "name": "enemy_boss",
+  "seed": 251064467,
+  "status": "ok",
+  "size": [
+   512,
+   512
+  ],
+  "raw": "gen_enemy_boss_00001_.png"
+ },
+ {
+  "name": "xp_orb",
+  "seed": 31719218,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_xp_orb_00001_.png"
+ },
+ {
+  "name": "icon_fireball",
+  "seed": 1981779506,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_fireball_00001_.png"
+ },
+ {
+  "name": "icon_chainlightning",
+  "seed": 1937629431,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_chainlightning_00001_.png"
+ },
+ {
+  "name": "icon_shield",
+  "seed": 620190886,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_shield_00001_.png"
+ },
+ {
+  "name": "icon_multishot",
+  "seed": 72592748,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_multishot_00001_.png"
+ },
+ {
+  "name": "icon_lifesteal",
+  "seed": 183864207,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_lifesteal_00001_.png"
+ },
+ {
+  "name": "icon_slowfield",
+  "seed": 1279190641,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_slowfield_00001_.png"
+ },
+ {
+  "name": "icon_split",
+  "seed": 1270534366,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_split_00001_.png"
+ },
+ {
+  "name": "icon_spinblade",
+  "seed": 1637947827,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_spinblade_00001_.png"
+ },
+ {
+  "name": "icon_explosion",
+  "seed": 2123775167,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_explosion_00001_.png"
+ },
+ {
+  "name": "icon_speed",
+  "seed": 738642073,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_speed_00001_.png"
+ },
+ {
+  "name": "bg_tile",
+  "seed": 1210464872,
+  "status": "ok",
+  "size": [
+   512,
+   512
+  ],
+  "raw": "gen_bg_tile_00001_.png"
+ },
+ {
+  "name": "title_art",
+  "seed": 2055485914,
+  "status": "ok",
+  "size": [
+   1024,
+   512
+  ],
+  "raw": "gen_title_art_00001_.png"
+ },
+ {
+  "name": "icon_iceshard",
+  "seed": 1275889462,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_iceshard_00001_.png"
+ },
+ {
+  "name": "icon_tidal",
+  "seed": 479097403,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_tidal_00001_.png"
+ },
+ {
+  "name": "icon_poison",
+  "seed": 550963293,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_poison_00001_.png"
+ },
+ {
+  "name": "icon_evo_chainlightning_fireball",
+  "seed": 1750137166,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_chainlightning_fireball_00001_.png"
+ },
+ {
+  "name": "icon_evo_fireball_poison",
+  "seed": 1512414588,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_fireball_poison_00001_.png"
+ },
+ {
+  "name": "icon_evo_iceshard_poison",
+  "seed": 335949467,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_iceshard_poison_00001_.png"
+ },
+ {
+  "name": "icon_evo_chainlightning_iceshard",
+  "seed": 1172101742,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_chainlightning_iceshard_00001_.png"
+ },
+ {
+  "name": "icon_evo_chainlightning_poison",
+  "seed": 1570357626,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_chainlightning_poison_00001_.png"
+ },
+ {
+  "name": "icon_evo_fireball_spinblade",
+  "seed": 1463469736,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_fireball_spinblade_00001_.png"
+ },
+ {
+  "name": "icon_evo_chainlightning_spinblade",
+  "seed": 117754668,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_chainlightning_spinblade_00001_.png"
+ },
+ {
+  "name": "icon_evo_explosion_spinblade",
+  "seed": 1387528517,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_explosion_spinblade_00001_.png"
+ },
+ {
+  "name": "icon_evo_iceshard_spinblade",
+  "seed": 444119594,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_iceshard_spinblade_00001_.png"
+ },
+ {
+  "name": "icon_evo_spinblade_tidal",
+  "seed": 210064381,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_spinblade_tidal_00001_.png"
+ },
+ {
+  "name": "icon_evo_poison_spinblade",
+  "seed": 542784202,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_poison_spinblade_00001_.png"
+ },
+ {
+  "name": "icon_evo_explosion_fireball",
+  "seed": 1985350825,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_explosion_fireball_00001_.png"
+ },
+ {
+  "name": "icon_evo_fireball_iceshard",
+  "seed": 1059518521,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_fireball_iceshard_00001_.png"
+ },
+ {
+  "name": "icon_evo_chainlightning_explosion",
+  "seed": 1365774600,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_chainlightning_explosion_00001_.png"
+ },
+ {
+  "name": "icon_evo_explosion_iceshard",
+  "seed": 865234123,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_explosion_iceshard_00001_.png"
+ },
+ {
+  "name": "icon_evo_explosion_tidal",
+  "seed": 594154426,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_explosion_tidal_00001_.png"
+ },
+ {
+  "name": "icon_evo_explosion_poison",
+  "seed": 177259963,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_explosion_poison_00001_.png"
+ },
+ {
+  "name": "icon_evo_fireball_tidal",
+  "seed": 679446344,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_fireball_tidal_00001_.png"
+ },
+ {
+  "name": "icon_evo_chainlightning_tidal",
+  "seed": 1121266403,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_chainlightning_tidal_00001_.png"
+ },
+ {
+  "name": "icon_evo_iceshard_tidal",
+  "seed": 1382570365,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_iceshard_tidal_00001_.png"
+ },
+ {
+  "name": "icon_evo_poison_tidal",
+  "seed": 257107366,
+  "status": "ok",
+  "size": [
+   128,
+   128
+  ],
+  "raw": "gen_icon_evo_poison_tidal_00001_.png"
+ }
+]

@@ -1,28 +1,45 @@
 // js/render.js — 렌더 — 캔버스 렌더링 + HUD
 // index.html IIFE에서 분리. 최상위 심볼은 스크립트 간 전역 렉시컬 스코프로 공유 (CONFIG 방식).
 // ===== 렌더 =====
+let floorPattern = null;
+function buildFloorPattern() {
+  const c = document.createElement('canvas');
+  c.width = 400; c.height = 400;
+  const f = c.getContext('2d');
+  const colors = ['#161a27', '#141722', '#171b29', '#151826'];
+  for (let ty = 0; ty < 4; ty++) {
+    for (let tx = 0; tx < 4; tx++) {
+      const x = tx * 100, y = ty * 100;
+      f.fillStyle = colors[(tx * 3 + ty) % 4];
+      f.fillRect(x, y, 100, 100);
+      // 그루트: 타일 경계 2px 선
+      f.strokeStyle = '#101320'; f.lineWidth = 2;
+      f.strokeRect(x + 1, y + 1, 98, 98);
+      // 타일 상단 1px 하이라이트
+      f.fillStyle = 'rgba(255,255,255,0.02)';
+      f.fillRect(x, y, 100, 1);
+    }
+  }
+  // 스펙클 ~30개 (결정적: i*137%400, i*89%400, 1-2px)
+  f.fillStyle = 'rgba(255,255,255,0.015)';
+  for (let i = 0; i < 30; i++) {
+    const size = (i % 2) + 1;
+    f.fillRect((i * 137) % 400, (i * 89) % 400, size, size);
+  }
+  return c;
+}
 function render() {
   ctx.fillStyle = '#0a0a12';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (!G) return;
   ctx.save();
   ctx.translate(-Math.round(cam.x), -Math.round(cam.y));
-  // 배경 타일
-  if (ASSETS.bg_tile) {
-    if (!bgPattern) bgPattern = ctx.createPattern(ASSETS.bg_tile, 'repeat');
-    ctx.fillStyle = bgPattern;
-    ctx.fillRect(cam.x - 512, cam.y - 512, canvas.width + 1024, canvas.height + 1024);
-  }
-  // 배경 그리드
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  // 배경: 프로시저럴 바닥 패턴 (400x400 오프스크린, 결정적)
+  if (!floorPattern) floorPattern = ctx.createPattern(buildFloorPattern(), 'repeat');
+  ctx.fillStyle = floorPattern;
+  ctx.fillRect(cam.x - 512, cam.y - 512, canvas.width + 1024, canvas.height + 1024);
+  // 월드 경계
   ctx.lineWidth = 1;
-  const grid = 100;
-  const x0 = Math.floor(cam.x / grid) * grid, x1 = cam.x + canvas.width;
-  const y0 = Math.floor(cam.y / grid) * grid, y1 = cam.y + canvas.height;
-  ctx.beginPath();
-  for (let x = x0; x <= x1; x += grid) { ctx.moveTo(x, cam.y); ctx.lineTo(x, y1); }
-  for (let y = y0; y <= y1; y += grid) { ctx.moveTo(cam.x, y); ctx.lineTo(x1, y); }
-  ctx.stroke();
   ctx.strokeStyle = 'rgba(255,209,102,0.25)';
   ctx.strokeRect(0, 0, WORLD.w, WORLD.h);
   // 던전 벽
@@ -237,6 +254,7 @@ function render() {
   }
   ctx.globalAlpha = 1;
   ctx.restore();
+  drawMinimap();
   // 스테이지 배너
   if (G.bannerT > 0) {
     ctx.globalAlpha = Math.min(1, G.bannerT / 0.4);
@@ -257,6 +275,27 @@ function render() {
     ctx.globalAlpha = 1;
   }
   updateHUD();
+}
+
+// ===== 미니맵 =====
+function drawMinimap() {
+  if (G.state !== 'playing' && G.state !== 'levelup') return;
+  const s = canvas.width < 640 ? 7 : 10, pad = 6, bx = 10, by = canvas.width < 640 ? 84 : 58;
+  const mw = MAP.cols * s, mh = MAP.rows * s;
+  ctx.fillStyle = 'rgba(8,10,18,0.72)';
+  ctx.fillRect(bx, by, mw + pad * 2, mh + pad * 2);
+  ctx.strokeStyle = '#3a4260'; ctx.lineWidth = 2;
+  ctx.strokeRect(bx, by, mw + pad * 2, mh + pad * 2);
+  const ox = bx + pad, oy = by + pad, sx = mw / WORLD.w, sy = mh / WORLD.h;
+  ctx.fillStyle = '#3d4666';
+  for (const rc of MAP.wallRects) ctx.fillRect(ox + rc.x * sx, oy + rc.y * sy, Math.max(2, rc.w * sx), Math.max(2, rc.h * sy));
+  if (G.companion) { ctx.fillStyle = '#4d9fff'; ctx.beginPath(); ctx.arc(ox + G.companion.x * sx, oy + G.companion.y * sy, 2, 0, Math.PI * 2); ctx.fill(); }
+  for (const e of G.enemies) { ctx.fillStyle = '#e63946'; ctx.beginPath(); ctx.arc(ox + e.x * sx, oy + e.y * sy, e.type === 'boss' ? 2.5 : 1.5, 0, Math.PI * 2); ctx.fill(); }
+  const p = G.player;
+  ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(ox + p.x * sx, oy + p.y * sy, 4, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(ox + p.x * sx, oy + p.y * sy, 2.5, 0, Math.PI * 2); ctx.fill();
 }
 
 // ===== HUD =====

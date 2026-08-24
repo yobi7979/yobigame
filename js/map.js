@@ -33,7 +33,7 @@ function genDungeon(rand = Math.random) {
   visited[0] = 1;
   while (stack.length) {
     const cur = stack[stack.length - 1];
-    const cc = Math.floor(cur / rows), cr = cur % rows;
+    const cc = cur % cols, cr = Math.floor(cur / cols);
     const nexts = [];
     for (const [dc, dr] of [[1,0],[-1,0],[0,1],[0,-1]]) {
       const nc = cc + dc, nr = cr + dr;
@@ -63,6 +63,15 @@ function genDungeon(rand = Math.random) {
       const [k, wi] = closed[Math.floor(rand() * closed.length)];
       if (k === 'v') vW[wi] = 0; else hW[wi] = 0;
     }
+  }
+  // 3) Dead-end removal: open a second exit for every room (no blocked spaces)
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    let open = 0; const closed = [];
+    if (c > 0) { if (!vW[(c-1) * rows + r]) open++; else closed.push(['v', (c-1) * rows + r]); }
+    if (c < cols - 1) { if (!vW[c * rows + r]) open++; else closed.push(['v', c * rows + r]); }
+    if (r > 0) { if (!hW[c * (rows-1) + (r-1)]) open++; else closed.push(['h', c * (rows-1) + (r-1)]); }
+    if (r < rows - 1) { if (!hW[c * (rows-1) + r]) open++; else closed.push(['h', c * (rows-1) + r]); }
+    if (open === 1) { const [k, wi] = closed[Math.floor(rand() * closed.length)]; if (k === 'v') vW[wi] = 0; else hW[wi] = 0; }
   }
   MAP.vW = vW; MAP.hW = hW;
 
@@ -149,11 +158,16 @@ function drawWalls() {
   const xr = cam.x + canvas.width, yr = cam.y + canvas.height;
   for (const rc of MAP.wallRects) {
     if (rc.x + rc.w < cam.x || rc.x > xr || rc.y + rc.h < cam.y || rc.y > yr) continue;
-    ctx.fillStyle = '#20263a';
+    ctx.fillStyle = '#232a41';
     ctx.fillRect(rc.x, rc.y, rc.w, rc.h);
-    ctx.fillStyle = '#3a4260'; // 밝은 가장자리
-    if (rc.w > rc.h) ctx.fillRect(rc.x, rc.y, rc.w, 5);
-    else ctx.fillRect(rc.x, rc.y, 5, rc.h);
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    if (rc.w > rc.h) { for (let y = rc.y + 40; y < rc.y + rc.h; y += 40) ctx.fillRect(rc.x, y, rc.w, 2); }
+    else { for (let x = rc.x + 40; x < rc.x + rc.w; x += 40) ctx.fillRect(x, rc.y, 2, rc.h); }
+    ctx.fillStyle = '#3d4666';
+    ctx.fillRect(rc.x, rc.y, rc.w, Math.min(5, rc.h));
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(rc.x, rc.y + rc.h - 5, rc.w, 5);
+    ctx.fillRect(rc.x + rc.w - 4, rc.y, 4, rc.h);
   }
 }
 
