@@ -91,7 +91,15 @@ function damageEnemy(e, dmg, opts = {}) {
     if (lsK) { const stK = skillStats('lifesteal', lsK); if (stK && stK.killHeal) G.player.hp = Math.min(G.player.maxHp, G.player.hp + stK.killHeal); }
     const crit = Math.random() < (e.type === 'miniboss' ? 0.50 : 0.10); // 미니보스: 50% / 일반: 10% → 5배 XP 구슬
     const xpVal = crit ? e.xp * 5 : e.xp;
-    G.pickups.push({ x: e.x, y: e.y, xp: xpVal, r: xpVal >= 20 ? 10 : 5, t: 0, crit });
+    if (e.type === 'miniboss') {
+      // 미니보스: 3개 XP 구슬 분산 드롭
+      const per = Math.ceil(xpVal / 3);
+      for (let i = 0; i < 3; i++) {
+        G.pickups.push({ x: e.x + (Math.random() - .5) * 120, y: e.y + (Math.random() - .5) * 120, xp: per, r: per >= 20 ? 10 : 5, t: 0, crit });
+      }
+    } else {
+      G.pickups.push({ x: e.x, y: e.y, xp: xpVal, r: xpVal >= 20 ? 10 : 5, t: 0, crit });
+    }
     // ===== 아이템 드롭 =====
     if (e.type === 'boss' || e.type === 'miniboss') {
       const n = e.type === 'boss' ? 3 : 1;
