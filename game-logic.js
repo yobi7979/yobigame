@@ -367,7 +367,7 @@ function skillStats(id, level) {
   return null;
 }
 
-// ===== 3택1 스킬 후보 생성 =====
+// ===== 5택1 스킬 후보 생성 (레벨업 시) =====
 function rollSkillChoices(player, rand) {
   const choices = [];
   const available = Object.keys(CONFIG.SKILLS);
@@ -394,10 +394,10 @@ function rollSkillChoices(player, rand) {
     }
   }
 
-  // 중복 없는 3개 추출
+  // 중복 없는 5개 추출
   const result = [];
   const used = new Set();
-  while (result.length < 3 && choices.length > 0) {
+  while (result.length < 5 && choices.length > 0) {
     const idx = Math.floor(rand() * choices.length);
     const c = choices[idx];
     const key = `${c.id}-${c.toLevel}`;
@@ -406,6 +406,17 @@ function rollSkillChoices(player, rand) {
       result.push(c);
     }
     choices.splice(idx, 1);
+  }
+  // 심기(스킬 다 최대화)에 후보가 5종 미만이면 템 효과(applyItem)로 항상 5개를 채움
+  if (result.length < 5) {
+    const fills = Object.keys(CONFIG.ITEMS).slice();
+    for (let i = fills.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [fills[i], fills[j]] = [fills[j], fills[i]];
+    }
+    for (const itemId of fills.slice(0, 5 - result.length)) {
+      result.push({ fill: itemId });
+    }
   }
   return result;
 }
@@ -449,8 +460,20 @@ function evolveSkills(player, a, b) {
   return skills;
 }
 
+// 조합 가능 감지: 레벨 무관하게, 다른 소유 스킬과 진화 페어를 이루는 보유 공격 스킬 ID 목록
+// (UI에서 색상 구분용 — Lv5 도달 전부터 조합 후보 표시)
+function combinableIds(player) {
+  const ids = Object.keys((player && player.skills) || {});
+  const out = [];
+  for (const a of ids) {
+    if (!ATTACK_SKILL_IDS.includes(a)) continue;
+    if (ids.some(b => b !== a && CONFIG.EVOLUTIONS[evoId(a, b)])) out.push(a);
+  }
+  return out;
+}
+
 // ===== Export =====
-const EXPORTS = { CONFIG, MAX_SKILL_LEVEL, MAX_EVO_LEVEL, ATTACK_SKILL_IDS, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng, evoId, evolutionPairs, evolveSkills };
+const EXPORTS = { CONFIG, MAX_SKILL_LEVEL, MAX_EVO_LEVEL, ATTACK_SKILL_IDS, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng, evoId, evolutionPairs, evolveSkills, combinableIds };
 if (typeof module !== 'undefined') {
   module.exports = EXPORTS;
 }
