@@ -122,12 +122,154 @@ const CONFIG = {
       { cd: 2.5, radius: 120, dmg: 90 },
       { cd: 2.5, radius: 140, dmg: 120 },
     ],
+    // 신규 기본 공격 스킬 (얼음/물/독)
+    iceshard: [
+      { dmg: 25, cd: 1.4 }, { dmg: 35, cd: 1.3 }, { dmg: 45, cd: 1.2 },
+      { dmg: 60, cd: 1.1 }, { dmg: 80, cd: 1.0, slow: 40, slowDur: 2 },
+    ],
+    tidal: [
+      { dmg: 25, cd: 2.5, kb: 100 }, { dmg: 35, cd: 2.4, kb: 100 }, { dmg: 45, cd: 2.2, kb: 120 },
+      { dmg: 60, cd: 2.0, kb: 120 }, { dmg: 80, cd: 1.8, kb: 140 },
+    ],
+    poison: [
+      { dmg: 20, cd: 1.6, pdps: 8 }, { dmg: 28, cd: 1.5, pdps: 10 }, { dmg: 38, cd: 1.4, pdps: 12 },
+      { dmg: 48, cd: 1.3, pdps: 15 }, { dmg: 60, cd: 1.2, pdps: 18 },
+    ],
     speed: [
       { pct: 10 }, { pct: 20 }, { pct: 30 }, { pct: 40 }, { pct: 50 },
     ],
     power: [
       { pct: 10 }, { pct: 20 }, { pct: 30 }, { pct: 40 }, { pct: 50 },
     ],
+  },
+  // ===== 스킬 진화: 21종 (id = 'evo_' + 알파벳 순 페어) =====
+  EVOLUTIONS: {
+    evo_chainlightning_fireball: { name: '플라즈마 볼트', icon: '🔥⚡', form: 'proj', effect: 'burn', from: ['chainlightning', 'fireball'],
+      desc: '270 대미지 · 관통 1 · 번 8/s',
+      tiers: [
+        { dmg: 270, cd: 1.2, pierce: 1, burn: 3, burnDps: 8 }, { dmg: 338, cd: 1.2, pierce: 2, burn: 3, burnDps: 10 }, { dmg: 405, cd: 1.2, pierce: 3, burn: 3, burnDps: 12 },
+      ],
+    },
+    evo_fireball_poison: { name: '독염', icon: '🔥☠️', form: 'proj', effect: 'poison', from: ['fireball', 'poison'],
+      desc: '240 대미지 · 관통 0 · 독 15/s',
+      tiers: [
+        { dmg: 240, cd: 1.2, pierce: 0, poisonDur: 3, poisonDps: 15 }, { dmg: 300, cd: 1.2, pierce: 1, poisonDur: 3, poisonDps: 20 }, { dmg: 360, cd: 1.2, pierce: 2, poisonDur: 3, poisonDps: 25 },
+      ],
+    },
+    evo_iceshard_poison: { name: '독결', icon: '❄️☠️', form: 'proj', effect: 'poison', from: ['iceshard', 'poison'],
+      desc: '210 대미지 · 관통 0 · 독 15/s',
+      tiers: [
+        { dmg: 210, cd: 1.2, pierce: 0, poisonDur: 3, poisonDps: 15 }, { dmg: 263, cd: 1.2, pierce: 1, poisonDur: 3, poisonDps: 20 }, { dmg: 315, cd: 1.2, pierce: 2, poisonDur: 3, poisonDps: 25 },
+      ],
+    },
+    evo_chainlightning_iceshard: { name: '폭풍결빙', icon: '⚡❄️', form: 'chain', effect: 'slow', from: ['chainlightning', 'iceshard'],
+      desc: '240 대미지 · 7연쇄 · 60% 슬로우 2.5s',
+      tiers: [
+        { dmg: 240, cd: 1.5, chains: 7, slow: 60, slowDur: 2.5 }, { dmg: 300, cd: 1.5, chains: 8, slow: 60, slowDur: 2.5 }, { dmg: 360, cd: 1.5, chains: 9, slow: 60, slowDur: 2.5 },
+      ],
+    },
+    evo_chainlightning_poison: { name: '전기독', icon: '⚡☠️', form: 'chain', effect: 'poison', from: ['chainlightning', 'poison'],
+      desc: '210 대미지 · 7연쇄 · 독 15/s',
+      tiers: [
+        { dmg: 210, cd: 1.5, chains: 7, poisonDur: 3, poisonDps: 15 }, { dmg: 263, cd: 1.5, chains: 8, poisonDur: 3, poisonDps: 20 }, { dmg: 315, cd: 1.5, chains: 9, poisonDur: 3, poisonDps: 25 },
+      ],
+    },
+    evo_fireball_spinblade: { name: '블레이즈 휠', icon: '🔥🌀', form: 'spin', effect: 'burn', from: ['fireball', 'spinblade'],
+      desc: '160 DPS · 반경 140 · 번 8/s',
+      tiers: [
+        { dps: 160, tick: 0.4, radius: 140, burn: 3, burnDps: 8 }, { dps: 200, tick: 0.4, radius: 155, burn: 3, burnDps: 10 }, { dps: 240, tick: 0.4, radius: 170, burn: 3, burnDps: 12 },
+      ],
+    },
+    evo_chainlightning_spinblade: { name: '썬더 휠', icon: '⚡🌀', form: 'spin', effect: 'stun', from: ['chainlightning', 'spinblade'],
+      desc: '139 DPS · 반경 140 · 15% 스툰',
+      tiers: [
+        { dps: 139, tick: 0.4, radius: 140, stun: 1, stunChance: 15 }, { dps: 174, tick: 0.4, radius: 155, stun: 1, stunChance: 20 }, { dps: 208, tick: 0.4, radius: 170, stun: 1, stunChance: 25 },
+      ],
+    },
+    evo_explosion_spinblade: { name: '절멸 회오리', icon: '💥🌀', form: 'spin', effect: 'none', from: ['explosion', 'spinblade'],
+      desc: '132 DPS · 반경 150',
+      tiers: [
+        { dps: 132, tick: 0.4, radius: 150 }, { dps: 165, tick: 0.4, radius: 165 }, { dps: 198, tick: 0.4, radius: 180 },
+      ],
+    },
+    evo_iceshard_spinblade: { name: '서리 검환', icon: '❄️🌀', form: 'spin', effect: 'slow', from: ['iceshard', 'spinblade'],
+      desc: '180 DPS · 반경 140 · 50% 슬로우 2s',
+      tiers: [
+        { dps: 180, tick: 0.4, radius: 140, slow: 50, slowDur: 2 }, { dps: 225, tick: 0.4, radius: 155, slow: 50, slowDur: 2 }, { dps: 270, tick: 0.4, radius: 170, slow: 50, slowDur: 2 },
+      ],
+    },
+    evo_spinblade_tidal: { name: '소용돌이', icon: '🌊🌀', form: 'spin', effect: 'kb', from: ['spinblade', 'tidal'],
+      desc: '126 DPS · 반경 140 · 밀어내기 60',
+      tiers: [
+        { dps: 126, tick: 0.4, radius: 140, kb: 60 }, { dps: 158, tick: 0.4, radius: 155, kb: 80 }, { dps: 189, tick: 0.4, radius: 170, kb: 100 },
+      ],
+    },
+    evo_poison_spinblade: { name: '독검 환', icon: '☠️🌀', form: 'spin', effect: 'poison', from: ['poison', 'spinblade'],
+      desc: '144 DPS · 반경 140 · 독 15/s',
+      tiers: [
+        { dps: 144, tick: 0.4, radius: 140, poisonDur: 3, poisonDps: 15 }, { dps: 180, tick: 0.4, radius: 155, poisonDur: 3, poisonDps: 20 }, { dps: 216, tick: 0.4, radius: 170, poisonDur: 3, poisonDps: 25 },
+      ],
+    },
+    evo_explosion_fireball: { name: '메테오', icon: '☄️🔥', form: 'aoe', effect: 'burn', from: ['explosion', 'fireball'],
+      desc: '330 대미지 · 반경 150 · 번 8/s',
+      tiers: [
+        { dmg: 330, cd: 2.5, radius: 150, burn: 3, burnDps: 8 }, { dmg: 413, cd: 2.5, radius: 170, burn: 3, burnDps: 10 }, { dmg: 495, cd: 2.5, radius: 190, burn: 3, burnDps: 12 },
+      ],
+    },
+    evo_fireball_iceshard: { name: '스팀 버스트', icon: '♨️🌫️', form: 'aoe', effect: 'slow', from: ['fireball', 'iceshard'],
+      desc: '270 대미지 · 반경 150 · 50% 슬로우 2.5s',
+      tiers: [
+        { dmg: 270, cd: 2.2, radius: 150, slow: 50, slowDur: 2.5 }, { dmg: 338, cd: 2.2, radius: 170, slow: 50, slowDur: 2.5 }, { dmg: 405, cd: 2.2, radius: 190, slow: 50, slowDur: 2.5 },
+      ],
+    },
+    evo_chainlightning_explosion: { name: '뇌쇄', icon: '⚡💥', form: 'aoe', effect: 'stun', from: ['chainlightning', 'explosion'],
+      desc: '300 대미지 · 반경 150 · 15% 스툰',
+      tiers: [
+        { dmg: 300, cd: 2.5, radius: 150, stun: 1, stunChance: 15 }, { dmg: 375, cd: 2.5, radius: 170, stun: 1, stunChance: 20 }, { dmg: 450, cd: 2.5, radius: 190, stun: 1, stunChance: 25 },
+      ],
+    },
+    evo_explosion_iceshard: { name: '얼음 초신성', icon: '❄️💥', form: 'aoe', effect: 'slow', from: ['explosion', 'iceshard'],
+      desc: '300 대미지 · 반경 150 · 60% 슬로우 2.5s',
+      tiers: [
+        { dmg: 300, cd: 2.5, radius: 150, slow: 60, slowDur: 2.5 }, { dmg: 375, cd: 2.5, radius: 170, slow: 60, slowDur: 2.5 }, { dmg: 450, cd: 2.5, radius: 190, slow: 60, slowDur: 2.5 },
+      ],
+    },
+    evo_explosion_tidal: { name: '해일 대폭파', icon: '🌊💥', form: 'aoe', effect: 'kb', from: ['explosion', 'tidal'],
+      desc: '300 대미지 · 반경 150 · 밀어내기 160',
+      tiers: [
+        { dmg: 300, cd: 2.5, radius: 150, kb: 160 }, { dmg: 375, cd: 2.5, radius: 170, kb: 200 }, { dmg: 450, cd: 2.5, radius: 190, kb: 240 },
+      ],
+    },
+    evo_explosion_poison: { name: '역병 폭탄', icon: '☠️💥', form: 'aoe', effect: 'poison', from: ['explosion', 'poison'],
+      desc: '270 대미지 · 반경 150 · 독 15/s',
+      tiers: [
+        { dmg: 270, cd: 2.5, radius: 150, poisonDur: 3, poisonDps: 15 }, { dmg: 338, cd: 2.5, radius: 170, poisonDur: 3, poisonDps: 20 }, { dmg: 405, cd: 2.5, radius: 190, poisonDur: 3, poisonDps: 25 },
+      ],
+    },
+    evo_fireball_tidal: { name: '끓는 해일', icon: '🔥🌊', form: 'wave', effect: 'burn', from: ['fireball', 'tidal'],
+      desc: '270 대미지 웨이브 · 번 8/s',
+      tiers: [
+        { dmg: 270, cd: 2.2, maxR: 260, burn: 3, burnDps: 8 }, { dmg: 338, cd: 2.2, maxR: 290, burn: 3, burnDps: 10 }, { dmg: 405, cd: 2.2, maxR: 320, burn: 3, burnDps: 12 },
+      ],
+    },
+    evo_chainlightning_tidal: { name: '전기 해일', icon: '⚡🌊', form: 'wave', effect: 'stun', from: ['chainlightning', 'tidal'],
+      desc: '240 대미지 웨이브 · 15% 스툰',
+      tiers: [
+        { dmg: 240, cd: 2.2, maxR: 260, stun: 1, stunChance: 15 }, { dmg: 300, cd: 2.2, maxR: 290, stun: 1, stunChance: 20 }, { dmg: 360, cd: 2.2, maxR: 320, stun: 1, stunChance: 25 },
+      ],
+    },
+    evo_iceshard_tidal: { name: '서리 해일', icon: '❄️🌊', form: 'wave', effect: 'slow', from: ['iceshard', 'tidal'],
+      desc: '240 대미지 웨이브 · 60% 슬로우 2.5s · 밀어내기 60',
+      tiers: [
+        { dmg: 240, cd: 2.2, maxR: 260, slow: 60, slowDur: 2.5, kb: 60 }, { dmg: 300, cd: 2.2, maxR: 290, slow: 60, slowDur: 2.5, kb: 60 }, { dmg: 360, cd: 2.2, maxR: 320, slow: 60, slowDur: 2.5, kb: 60 },
+      ],
+    },
+    evo_poison_tidal: { name: '역병 물결', icon: '🌊☠️', form: 'wave', effect: 'poison', from: ['poison', 'tidal'],
+      desc: '210 대미지 웨이브 · 독 15/s',
+      tiers: [
+        { dmg: 210, cd: 2.2, maxR: 260, poisonDur: 3, poisonDps: 15 }, { dmg: 263, cd: 2.2, maxR: 290, poisonDur: 3, poisonDps: 20 }, { dmg: 315, cd: 2.2, maxR: 320, poisonDur: 3, poisonDps: 25 },
+      ],
+    },
   },
   COMPANIONS: [
     {
@@ -155,6 +297,8 @@ const CONFIG = {
 };
 
 const MAX_SKILL_LEVEL = 5;
+const MAX_EVO_LEVEL = 3;
+const ATTACK_SKILL_IDS = ['fireball', 'chainlightning', 'spinblade', 'explosion', 'iceshard', 'tidal', 'poison'];
 
 // ===== 경험치 곡선 =====
 // 레벨 n → n+1 에 필요한 XP (베이스 10→5, 절반으로 감속 완화 — 레벨업 가속)
@@ -208,10 +352,19 @@ function rollItem(rand) {
 
 // ===== 스킬 통계 =====
 function skillStats(id, level) {
-  if (!id || !level || level < 1 || level > MAX_SKILL_LEVEL) return null;
+  if (!id || !level || level < 1) return null;
   const sk = CONFIG.SKILLS[id];
-  if (!sk) return null;
-  return { id, level, ...sk[level - 1] };
+  if (sk) {
+    if (level > MAX_SKILL_LEVEL) return null;
+    return { id, level, ...sk[level - 1] };
+  }
+  // 진화 스킬: Lv3까지
+  const evo = CONFIG.EVOLUTIONS[id];
+  if (evo) {
+    if (level > MAX_EVO_LEVEL) return null;
+    return { id, level, ...evo.tiers[level - 1] };
+  }
+  return null;
 }
 
 // ===== 3택1 스킬 후보 생성 =====
@@ -229,6 +382,15 @@ function rollSkillChoices(player, rand) {
     const weight = currentLv === 0 ? 3 : 1;
     for (let i = 0; i < weight; i++) {
       choices.push({ id, toLevel });
+    }
+  }
+
+  // 진화 스킬: 보유 중일 때만 풀에 등장 (Lv3까지)
+  for (const id in CONFIG.EVOLUTIONS) {
+    const lvl = (player && player.skills && player.skills[id]) || 0;
+    if (lvl > 0 && lvl < MAX_EVO_LEVEL) {
+      const toLevel = lvl + 1;
+      for (let i = 0; i < 3; i++) choices.push({ id, toLevel });
     }
   }
 
@@ -258,10 +420,40 @@ function makeRng(seed) {
   };
 }
 
+// ===== 스킬 진화 =====
+function evoId(a, b) {
+  const [x, y] = [a, b].sort();
+  return 'evo_' + x + '_' + y;
+}
+
+// Lv5 공격 스킬 페어 → 진화 후보 목록
+function evolutionPairs(player) {
+  const maxed = ATTACK_SKILL_IDS.filter(id => (player.skills && player.skills[id]) === MAX_SKILL_LEVEL);
+  const out = [];
+  for (let i = 0; i < maxed.length; i++) for (let j = i + 1; j < maxed.length; j++) {
+    const [a, b] = [maxed[i], maxed[j]].sort();
+    const evo = CONFIG.EVOLUTIONS['evo_' + a + '_' + b];
+    if (evo) out.push({ a, b, id: 'evo_' + a + '_' + b, ...evo });
+  }
+  return out;
+}
+
+// 순수 함수: 두 스킬 삭제 → 진화 스킬 Lv1 추가 (원 객체 불변)
+function evolveSkills(player, a, b) {
+  const [x, y] = [a, b].sort();
+  const id = 'evo_' + x + '_' + y;
+  if (!CONFIG.EVOLUTIONS[id]) return player.skills;
+  const skills = { ...player.skills };
+  delete skills[a]; delete skills[b];
+  skills[id] = 1;
+  return skills;
+}
+
 // ===== Export =====
+const EXPORTS = { CONFIG, MAX_SKILL_LEVEL, MAX_EVO_LEVEL, ATTACK_SKILL_IDS, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng, evoId, evolutionPairs, evolveSkills };
 if (typeof module !== 'undefined') {
-  module.exports = { CONFIG, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng };
+  module.exports = EXPORTS;
 }
 if (typeof window !== 'undefined') {
-  window.GameLogic = { CONFIG, xpForLevel, levelFromXp, spawnInterval, enemyHpScale, enemyDmgScale, rollEnemyType, itemDropChance, rollItem, skillStats, rollSkillChoices, makeRng };
+  window.GameLogic = EXPORTS;
 }

@@ -29,6 +29,8 @@
   /* 스킬 아이콘 */
   #skills { position: fixed; bottom: calc(34px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
   .skill-icon { width: 48px; height: 48px; background: #1a1a2e; border: 2px solid #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; position: relative; }
+  .evolve-btn { background: linear-gradient(135deg, #8e54e9, #ff5e78); border: none; color: #fff; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; margin-right: 8px; }
+  .evolve-btn.hidden { display: none; }
   .skill-cd { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
   .skill-dmg { position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: #9ad1ff; text-shadow: 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
   /* 동료 칩 */
@@ -103,7 +105,7 @@
 </div>
 
 <!-- 스킬 아이콘 -->
-<div id="skills"></div>
+<div id="skills"><button id="evolveBtn" class="evolve-btn hidden">⚗️ 진화</button></div>
 
 <!-- 동료 칩 -->
 <div id="compChip"></div>
@@ -128,6 +130,16 @@
     <h2>🎉 Level Up!</h2>
     <p>스킬을 선택하세요</p>
     <div class="skill-choices" id="skillChoices"></div>
+  </div>
+</div>
+
+<!-- 스킬 진화 모달 -->
+<div class="modal-overlay hidden" id="evolveModal">
+  <div class="modal">
+    <h2>⚗️ 스킬 진화</h2>
+    <p style="margin: 8px 0 14px; color: #aaa; font-size: 13px;">Lv5 공격 스킬 두 개가 결합해 하나의 강력한 스킬로 진화합니다.</p>
+    <div class="skill-choices" id="evolveChoices"></div>
+    <button class="menu-btn" id="evolveBackBtn" style="margin-top: 14px;">돌아가기</button>
   </div>
 </div>
 
@@ -171,7 +183,7 @@
   addEventListener('resize', resize);
 
   // ===== 에셋 로더 =====
-  const ASSET_NAMES = ['player','enemy_basic','enemy_fast','enemy_tanky','enemy_ranged','enemy_miniboss','enemy_boss','xp_orb','icon_fireball','icon_chainlightning','icon_shield','icon_multishot','icon_lifesteal','icon_slowfield','icon_split','icon_spinblade','icon_explosion','icon_speed','bg_tile','title_art'];
+  const ASSET_NAMES = ['player','enemy_basic','enemy_fast','enemy_tanky','enemy_ranged','enemy_miniboss','enemy_boss','xp_orb','icon_fireball','icon_chainlightning','icon_shield','icon_multishot','icon_lifesteal','icon_slowfield','icon_split','icon_spinblade','icon_explosion','icon_speed','icon_iceshard','icon_tidal','icon_poison','icon_evo_chainlightning_fireball','icon_evo_fireball_poison','icon_evo_iceshard_poison','icon_evo_chainlightning_iceshard','icon_evo_chainlightning_poison','icon_evo_fireball_spinblade','icon_evo_chainlightning_spinblade','icon_evo_explosion_spinblade','icon_evo_iceshard_spinblade','icon_evo_spinblade_tidal','icon_evo_poison_spinblade','icon_evo_explosion_fireball','icon_evo_fireball_iceshard','icon_evo_chainlightning_explosion','icon_evo_explosion_iceshard','icon_evo_explosion_tidal','icon_evo_explosion_poison','icon_evo_fireball_tidal','icon_evo_chainlightning_tidal','icon_evo_iceshard_tidal','icon_evo_poison_tidal','bg_tile','title_art'];
   const ASSETS = {};
   let bgPattern = null;
   ASSET_NAMES.forEach((name) => {
@@ -247,7 +259,7 @@
       },
       enemies: [], projectiles: [], pickups: [], particles: [], slashes: [], floaters: [],
       items: [],
-      lightnings: [], explosions: [], slowfieldFx: [], bossWarnings: [],
+      lightnings: [], explosions: [], slowfieldFx: [], bossWarnings: [], waves: [],
       tempBuffs: { rage: 0, haste: 0, magnet: 0 },
       skillDamage: {},
       levelupQueue: 0, banner: '', bannerT: 0, bossSpawned: false,
@@ -529,6 +541,12 @@
         damageEnemy(e, e.burnDps * dt);
         if (e.hp <= 0) continue;
       }
+      // 독 (poison)
+      if (e.poisonDur > 0) {
+        e.poisonDur -= dt;
+        if (e.poisonDur > 0) damageEnemy(e, e.poisonDps * dt, { skillId: 'poison' });
+        if (e.hp <= 0) continue;
+      }
       // 스톤
       if (e.stun > 0) { e.stun -= dt; continue; }
       e.animT = (e.animT || 0) + dt;
@@ -623,6 +641,8 @@
           if (dist2(e, pr) < rr * rr) {
             damageEnemy(e, pr.dmg * dmgMul(), pr.skillId ? { skillId: pr.skillId } : {});
             if (pr.burn && e.hp > 0) { e.burn = pr.burn; e.burnDps = pr.burnDps; }
+            if (pr.slow && e.hp > 0) { e.slow = Math.max(e.slow, pr.slow); e.slowDur = Math.max(e.slowDur || 0, pr.slowDur); }
+            if (pr.poisonDps && e.hp > 0) { e.poisonDps = Math.max(e.poisonDps || 0, pr.poisonDps); e.poisonDur = Math.max(e.poisonDur || 0, 3); }
             const sp = p.skills.split ? skillStats('split', p.skills.split) : null;
             if (sp && !pr.noSplit) {
               const base = Math.atan2(pr.vy, pr.vx);
@@ -654,6 +674,42 @@
     G.projectiles = G.projectiles.filter(pr => !pr.dead);
   }
 
+  // ===== 링 웨이브 (tidal / 진화 해일류) =====
+  function updateWaves(dt) {
+    for (const w of G.waves) {
+      w.r += w.speed * dt;
+      for (const e of G.enemies) {
+        if (e.hp <= 0 || w.hit.has(e)) continue;
+        const d = Math.hypot(e.x - w.x, e.y - w.y);
+        if (d < w.r && d > w.r - 60) {
+          w.hit.add(e);
+          damageEnemy(e, w.dmg * dmgMul(), { skillId: w.skillId });
+          if (e.hp > 0 && w.kb) {
+            const dd = Math.max(1, d), ux = (e.x - w.x) / dd, uy = (e.y - w.y) / dd;
+            e.x = Math.min(WORLD.w, Math.max(0, e.x + ux * w.kb));
+            e.y = Math.min(WORLD.h, Math.max(0, e.y + uy * w.kb));
+          }
+          if (w.effect) applyStatus(e, w.effect, w.tier, w.skillId);
+        }
+      }
+    }
+    G.waves = G.waves.filter(w => w.r < w.maxR);
+  }
+
+  // ===== 진화 스킬 상태 적용 (burn/slow/stun/poison/kb) =====
+  function applyStatus(e, effect, st, skillId) {
+    if (!effect || e.hp <= 0) return;
+    if (effect === 'burn') { e.burn = st.burn || 3; e.burnDps = st.burnDps || 8; }
+    else if (effect === 'slow') { e.slow = Math.max(e.slow, st.slow); e.slowDur = Math.max(e.slowDur || 0, st.slowDur); }
+    else if (effect === 'stun') { if (Math.random() * 100 < (st.stunChance || 0)) e.stun = Math.max(e.stun, st.stun || 1); }
+    else if (effect === 'poison') { e.poisonDps = Math.max(e.poisonDps || 0, st.poisonDps); e.poisonDur = Math.max(e.poisonDur || 0, st.poisonDur || 3); }
+    else if (effect === 'kb') {
+      const dd = Math.max(1, Math.hypot(e.x - G.player.x, e.y - G.player.y)), ux = (e.x - G.player.x) / dd, uy = (e.y - G.player.y) / dd;
+      e.x = Math.min(WORLD.w, Math.max(0, e.x + ux * (st.kb || 0)));
+      e.y = Math.min(WORLD.h, Math.max(0, e.y + uy * (st.kb || 0)));
+    }
+  }
+
   // ===== 스킬 업데이트 (자동 발동) =====
   function updateSkills(dt) {
     const p = G.player;
@@ -663,6 +719,64 @@
       if (!st) continue;
       p.skillTimers[id] = (p.skillTimers[id] === undefined ? 0 : p.skillTimers[id]) - dt;
       let t = p.skillTimers[id];
+      const evo = CONFIG.EVOLUTIONS[id];
+      if (evo) {
+        if (evo.form === 'spin') {
+          p.evoSpinAcc = p.evoSpinAcc || {};
+          p.evoSpinAcc[id] = (p.evoSpinAcc[id] || 0) + dt;
+          if (p.evoSpinAcc[id] >= (st.tick || 0.4)) {
+            p.evoSpinAcc[id] = 0;
+            for (const e of G.enemies) {
+              if (e.hp <= 0) continue;
+              if (dist2(e, p) <= st.radius * st.radius) {
+                damageEnemy(e, st.dps * (st.tick || 0.4) * dmgMul(), { skillId: id });
+                if (e.hp <= 0) continue;
+                if (evo.effect === 'kb') {
+                  const dd = Math.max(1, Math.sqrt(dist2(e, p))), ux = (e.x - p.x) / dd, uy = (e.y - p.y) / dd;
+                  e.x = Math.min(WORLD.w, Math.max(0, e.x + ux * st.kb));
+                  e.y = Math.min(WORLD.h, Math.max(0, e.y + uy * st.kb));
+                } else applyStatus(e, evo.effect, st, id);
+              }
+            }
+          }
+        } else if (t <= 0) {
+          const e0 = nearestEnemy(p.x, p.y, 450);
+          if (e0) {
+            t = st.cd;
+            if (evo.form === 'aoe') {
+              G.explosions.push({ x: e0.x, y: e0.y, r: st.radius, t: 0.4, maxT: 0.4 });
+              for (const e of G.enemies) {
+                if (e.hp > 0 && dist2(e, e0) < st.radius * st.radius) {
+                  damageEnemy(e, st.dmg * dmgMul(), { skillId: id });
+                  if (e.hp > 0) applyStatus(e, evo.effect, st, id);
+                }
+              }
+              G.shake = Math.min(1, G.shake + 0.3);
+            } else if (evo.form === 'wave') {
+              G.waves.push({ x: p.x, y: p.y, r: 40, maxR: st.maxR, speed: 320, dmg: st.dmg, kb: st.kb || 0, effect: evo.effect, tier: st, skillId: id, hit: new Set() });
+            } else if (evo.form === 'chain') {
+              const hitList = [e0];
+              let cur = e0;
+              for (let i = 1; i < st.chains; i++) {
+                const next = G.enemies.filter(e => e.hp > 0 && !hitList.includes(e))
+                  .sort((a, b) => dist2(a, cur) - dist2(b, cur))[0];
+                if (!next) break;
+                hitList.push(next); cur = next;
+              }
+              G.lightnings.push({ pts: [{ x: p.x, y: p.y }].concat(hitList.map(e => ({ x: e.x, y: e.y }))), t: 0.15, maxT: 0.15 });
+              for (const e of hitList) {
+                damageEnemy(e, st.dmg * dmgMul(), { skillId: id });
+                if (e.hp > 0) applyStatus(e, evo.effect, st, id);
+              }
+            } else {
+              const a = Math.atan2(e0.y - p.y, e0.x - p.x);
+              G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, dmg: st.dmg, friendly: true, r: 8, life: 1.5, pierce: st.pierce || 0, burn: st.burn || 0, burnDps: st.burnDps || 0, poisonDps: st.poisonDps || 0, skillId: id });
+            }
+          }
+        }
+        p.skillTimers[id] = t;
+        continue;
+      }
       switch (id) {
         case 'fireball':
           if (t <= 0) {
@@ -737,6 +851,32 @@
                 if (e.hp > 0 && dist2(e, best) < st.radius * st.radius) damageEnemy(e, st.dmg * dmgMul(), { skillId: 'explosion' });
               }
               G.shake = Math.min(1, G.shake + 0.3);
+            }
+          }
+          break;
+        case 'iceshard':
+          if (t <= 0) {
+            const e2 = nearestEnemy(p.x, p.y, 450);
+            if (e2) {
+              t = st.cd;
+              const a2 = Math.atan2(e2.y - p.y, e2.x - p.x);
+              G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a2) * 500, vy: Math.sin(a2) * 500, dmg: st.dmg, friendly: true, r: 6, life: 1.6, slow: st.slow || 0, slowDur: st.slowDur || 0, skillId: 'iceshard', color: '#7adfff' });
+            }
+          }
+          break;
+        case 'tidal':
+          if (t <= 0) {
+            t = st.cd;
+            G.waves.push({ x: p.x, y: p.y, r: 40, maxR: 260, speed: 320, dmg: st.dmg, kb: st.kb, skillId: 'tidal', hit: new Set() });
+          }
+          break;
+        case 'poison':
+          if (t <= 0) {
+            const e3 = nearestEnemy(p.x, p.y, 450);
+            if (e3) {
+              t = st.cd;
+              const a3 = Math.atan2(e3.y - p.y, e3.x - p.x);
+              G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a3) * 380, vy: Math.sin(a3) * 380, dmg: st.dmg, friendly: true, r: 5, life: 1.8, poisonDps: st.pdps, skillId: 'poison', color: '#6fce58' });
             }
           }
           break;
@@ -838,6 +978,7 @@
       G.banner = '스테이지 ' + G.stage; G.bannerT = 1.8;
       G.enemies = G.enemies.filter(e => e.type !== 'boss' && e.type !== 'miniboss');
       G.projectiles = G.projectiles.filter(pr => pr.friendly);
+      G.waves.length = 0;
     }
   }
 
@@ -903,6 +1044,10 @@
   const bossHpText = document.getElementById('bossHpText');
   const bossName = document.getElementById('bossName');
   const skillsEl = document.getElementById('skills');
+  const evolveBtn = document.getElementById('evolveBtn');
+  const evolveModal = document.getElementById('evolveModal');
+  const evolveChoicesEl = document.getElementById('evolveChoices');
+  let currentEvoPairs = [];
   const startModal = document.getElementById('startModal');
   const levelupModal = document.getElementById('levelupModal');
   const skillChoices = document.getElementById('skillChoices');
@@ -914,8 +1059,8 @@
   const restartBtn = document.getElementById('restartBtn');
   const winRestartBtn = document.getElementById('winRestartBtn');
 
-  const SKILL_ICONS = { fireball: '🔥', chainlightning: '⚡', shield: '🛡️', multishot: '🗡️', lifesteal: '🩸', slowfield: '❄️', split: '✳️', spinblade: '🌀', explosion: '💥', speed: '💨', power: '💪' };
-  const SKILL_NAMES = { fireball: '파이어볼', chainlightning: '체인 라이트닝', shield: '시ールド', multishot: '멀티샷', lifesteal: '라이프스틸', slowfield: '슬로필드', split: '스플릿', spinblade: '스핀 블레이드', explosion: '익스플로전', speed: '이동 속도', power: '데미지 강화' };
+  const SKILL_ICONS = { fireball: '🔥', chainlightning: '⚡', shield: '🛡️', multishot: '🗡️', lifesteal: '🩸', slowfield: '❄️', split: '✳️', spinblade: '🌀', explosion: '💥', speed: '💨', power: '💪', iceshard: '❄️', tidal: '🌊', poison: '☠️', evo_chainlightning_fireball: '🔥⚡', evo_fireball_poison: '🔥☠️', evo_iceshard_poison: '❄️☠️', evo_chainlightning_iceshard: '⚡❄️', evo_chainlightning_poison: '⚡☠️', evo_fireball_spinblade: '🔥🌀', evo_chainlightning_spinblade: '⚡🌀', evo_explosion_spinblade: '💥🌀', evo_iceshard_spinblade: '❄️🌀', evo_spinblade_tidal: '🌊🌀', evo_poison_spinblade: '☠️🌀', evo_explosion_fireball: '☄️🔥', evo_fireball_iceshard: '♨️🌫️', evo_chainlightning_explosion: '⚡💥', evo_explosion_iceshard: '❄️💥', evo_explosion_tidal: '🌊💥', evo_explosion_poison: '☠️💥', evo_fireball_tidal: '🔥🌊', evo_chainlightning_tidal: '⚡🌊', evo_iceshard_tidal: '❄️🌊', evo_poison_tidal: '🌊☠️' };
+  const SKILL_NAMES = { fireball: '파이어볼', chainlightning: '체인 라이트닝', shield: '시ールド', multishot: '멀티샷', lifesteal: '라이프스틸', slowfield: '슬로필드', split: '스플릿', spinblade: '스핀 블레이드', explosion: '익스플로전', speed: '이동 속도', power: '데미지 강화', iceshard: '아이스 샤드', tidal: '틸 웨이브', poison: '베놈 디아드', evo_chainlightning_fireball: '플라즈마 볼트', evo_fireball_poison: '독염', evo_iceshard_poison: '독결', evo_chainlightning_iceshard: '폭풍결빙', evo_chainlightning_poison: '전기독', evo_fireball_spinblade: '블레이즈 휠', evo_chainlightning_spinblade: '썬더 휠', evo_explosion_spinblade: '절멸 회오리', evo_iceshard_spinblade: '서리 검환', evo_spinblade_tidal: '소용돌이', evo_poison_spinblade: '독검 환', evo_explosion_fireball: '메테오', evo_fireball_iceshard: '스팀 버스트', evo_chainlightning_explosion: '뇌쇄', evo_explosion_iceshard: '얼음 초신성', evo_explosion_tidal: '해일 대폭파', evo_explosion_poison: '역병 폭탄', evo_fireball_tidal: '끓는 해일', evo_chainlightning_tidal: '전기 해일', evo_iceshard_tidal: '서리 해일', evo_poison_tidal: '역병 물결' };
   function skillDescLine(id, st) {
     switch (id) {
       case 'fireball': return st.dmg + ' 데미지 / ' + st.cd + '초' + (st.pierce ? ' / 관통 ' + st.pierce : '') + (st.burn ? ' / 지속 피해' : '');
@@ -929,8 +1074,27 @@
       case 'explosion': return '반경 ' + st.radius + ' / ' + st.dmg + ' 데미지 / ' + st.cd + '초';
       case 'speed': return '이동 속도 +' + st.pct + '%';
       case 'power': return '전체 공격력 +' + st.pct + '%';
+      case 'iceshard': return st.dmg + ' 대미지 · CD ' + st.cd + '초' + (st.slow ? ' · 적 ' + st.slow + '% 슬로우 ' + st.slowDur + '초' : '');
+      case 'tidal': return st.dmg + ' 대미지 웨이브 · 적 밀어내기 ' + st.kb + 'px';
+      case 'poison': return st.dmg + ' 대미지 · 독 ' + st.pdps + '/s 지속 피해';
     }
-    return '';
+    return evoDescLine(id, st);
+  }
+  function evoDescLine(id, st) {
+    if (!CONFIG.EVOLUTIONS[id] || !st) return '';
+    const parts = [SKILL_NAMES[id] || id];
+    if (st.dmg) parts.push(st.dmg + ' 대미지');
+    if (st.dps) parts.push(st.dps + ' DPS');
+    if (st.radius) parts.push('반경 ' + st.radius);
+    if (st.cd) parts.push('CD ' + st.cd + '초');
+    if (st.pierce) parts.push('관통 ' + st.pierce);
+    if (st.chains) parts.push(st.chains + '개 체인');
+    if (st.burnDps) parts.push('번 ' + st.burnDps + '/s');
+    if (st.poisonDps) parts.push('독 ' + st.poisonDps + '/s');
+    if (st.slow) parts.push(st.slow + '% 슬로우 ' + st.slowDur + '초');
+    if (st.stunChance) parts.push('스툰 ' + st.stunChance + '%');
+    if (st.kb) parts.push('밀어내기 ' + st.kb + 'px');
+    return parts.join(' · ');
   }
 
   // ===== 렌더 =====
@@ -1028,12 +1192,18 @@
       if (pr.friendly) {
         ctx.fillStyle = 'rgba(255,170,60,0.3)';
         ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 4, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ffab2e';
+        ctx.fillStyle = pr.color || '#ffab2e';
         ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r, 0, Math.PI * 2); ctx.fill();
       } else {
         ctx.fillStyle = '#ff5d8f';
         ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r, 0, Math.PI * 2); ctx.fill();
       }
+    }
+    // 링 웨이브
+    for (const w of G.waves) {
+      ctx.strokeStyle = 'rgba(90,200,250,0.7)';
+      ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
     }
     // 체인 라이트닝
     for (const l of G.lightnings) {
@@ -1060,6 +1230,16 @@
     if (sb) {
       ctx.strokeStyle = 'rgba(200,190,255,0.5)'; ctx.lineWidth = 2; ctx.setLineDash([10, 8]);
       ctx.beginPath(); ctx.arc(p.x, p.y, sb.radius, G.time * 3, G.time * 3 + Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // 진화 스피닝 링
+    for (const id in p.skills) {
+      const evoR = CONFIG.EVOLUTIONS[id];
+      if (!evoR || evoR.form !== 'spin') continue;
+      const sst = skillStats(id, p.skills[id]);
+      if (!sst) continue;
+      ctx.strokeStyle = 'rgba(160,110,230,0.55)'; ctx.lineWidth = 2; ctx.setLineDash([12, 6]);
+      ctx.beginPath(); ctx.arc(p.x, p.y, sst.radius, -G.time * 2.5, -G.time * 2.5 + Math.PI * 2); ctx.stroke();
       ctx.setLineDash([]);
     }
     const psz = p.radius * 2.6;
@@ -1190,6 +1370,7 @@
         '<span style="position:absolute;bottom:2px;right:4px;font-size:10px;color:#ffd166">' + v + '</span>' +
         '<span class="skill-dmg"></span></div>'
       ).join('');
+      skillsEl.prepend(evolveBtn); // innerHTML 재빌드로 버튼 소실 방지
       const ids = Object.keys(p.skills);
       skillsEl.querySelectorAll('.skill-dmg').forEach((el, i) => { skillDmgEls[ids[i]] = el; });
     }
@@ -1200,6 +1381,7 @@
         if (el.textContent !== s) el.textContent = s;
       }
     }
+    evolveBtn.classList.toggle('hidden', G.state !== 'playing' || evolutionPairs(G.player).length === 0);
   }
 
   // ===== 레벨업 모달 =====
@@ -1291,6 +1473,36 @@
   renderCompCards();
 
   // ===== 시작 / 재시작 =====
+  // ===== 스킬 진화 모달 =====
+  function evDesc(ev) {
+    const st = skillStats(ev.id, 1);
+    let s = evoDescLine(ev.id, st);
+    if (st && st.maxR) s += ' · 범위 ' + st.maxR;
+    return s;
+  }
+  function openEvolve() {
+    if (G.state !== 'playing') return;
+    currentEvoPairs = evolutionPairs(G.player);
+    if (!currentEvoPairs.length) return;
+    G.state = 'evolve'; // 루프가 'playing'일 때만 업데이트 → 자동 일시정지
+    evolveChoicesEl.innerHTML = currentEvoPairs.map((ev, i) =>
+      '<div class="skill-choice evo-pair" data-i="' + i + '">' +
+      '<div class="name">' + iconHtml(ev.a) + ' + ' + iconHtml(ev.b) + ' → ' + iconHtml(ev.id) + ' ' + ev.name + '</div>' +
+      '<div class="desc">' + evDesc(ev) + '</div></div>').join('');
+    evolveChoicesEl.querySelectorAll('.evo-pair').forEach(el => el.onclick = () => chooseEvolve(+el.dataset.i));
+    evolveModal.classList.remove('hidden');
+  }
+  function chooseEvolve(i) {
+    const ev = currentEvoPairs[i];
+    if (!ev) return;
+    G.player.skills = evolveSkills(G.player, ev.a, ev.b);
+    G.player.skillTimers[ev.id] = 0;
+    evolveModal.classList.add('hidden');
+    G.state = 'playing';
+    updateHUD();
+  }
+  document.getElementById('evolveBackBtn').onclick = () => { evolveModal.classList.add('hidden'); G.state = 'playing'; };
+  evolveBtn.onclick = () => openEvolve();
   function startGame() {
     G = newRun();
     G.state = 'playing';
@@ -1303,18 +1515,21 @@
     gameoverModal.classList.add('hidden');
     winModal.classList.add('hidden');
     levelupModal.classList.add('hidden');
+    evolveModal.classList.add('hidden');
     lastSkillKey = '##';
   }
   function backToMenu() {
     G = newRun();                    // 전체 리셋 (newRun이 state 'menu' 설정)
     lastSkillKey = '##';             // 스킬바 재빌드 트리거
     skillsEl.innerHTML = '';
+    skillsEl.prepend(evolveBtn);
     hudEl.style.display = 'none';
     bossBar.style.display = 'none';
     document.getElementById('compChip').style.display = 'none';
     gameoverModal.classList.add('hidden');
     winModal.classList.add('hidden');
     levelupModal.classList.add('hidden');
+    evolveModal.classList.add('hidden');
     startModal.classList.remove('hidden');
     renderCompCards();               // 저장된 선택(localStorage) 하이라이트 재생성
   }
@@ -1391,6 +1606,7 @@
       updateCompanion(dt);
       updateEnemies(dt);
       updateProjectiles(dt);
+      updateWaves(dt);
       updatePickups(dt);
       updateItems(dt);
       updateStage(dt);
