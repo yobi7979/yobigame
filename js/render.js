@@ -25,6 +25,8 @@ function render() {
   ctx.stroke();
   ctx.strokeStyle = 'rgba(255,209,102,0.25)';
   ctx.strokeRect(0, 0, WORLD.w, WORLD.h);
+  // 던전 벽
+  drawWalls();
   // 슬로필드 이펙트
   for (const s of G.slowfieldFx) {
     ctx.strokeStyle = 'rgba(122,229,130,' + (s.t / s.maxT * 0.5) + ')';
@@ -93,8 +95,18 @@ function render() {
   // 탄
   for (const pr of G.projectiles) {
     if (pr.friendly) {
-      ctx.fillStyle = 'rgba(255,170,60,0.3)';
-      ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 4, 0, Math.PI * 2); ctx.fill();
+      if (pr.vr) {
+        // 진화 스킬: 대형 글로우 (흰 코어 → 보라 가장자리)
+        const g = ctx.createRadialGradient(pr.x, pr.y, 1, pr.x, pr.y, pr.vr);
+        g.addColorStop(0, '#ffffff');
+        g.addColorStop(0.4, pr.color || '#c084fc');
+        g.addColorStop(1, 'rgba(168,85,247,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.vr, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillStyle = 'rgba(255,170,60,0.3)';
+        ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 4, 0, Math.PI * 2); ctx.fill();
+      }
       ctx.fillStyle = pr.color || '#ffab2e';
       ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r, 0, Math.PI * 2); ctx.fill();
     } else {
@@ -104,17 +116,31 @@ function render() {
   }
   // 링 웨이브
   for (const w of G.waves) {
-    ctx.strokeStyle = 'rgba(90,200,250,0.7)';
-    ctx.lineWidth = 6;
-    ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
+    if (CONFIG.EVOLUTIONS[w.skillId]) {
+      // 진화 웨이브: 두꺼운 보라 이중 링 (확장될수록 옅어짐)
+      const a = Math.max(0.25, 1 - w.r / w.maxR);
+      ctx.strokeStyle = 'rgba(168,85,247,' + (0.3 + a * 0.45) + ')'; ctx.lineWidth = 14;
+      ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,' + (0.4 + a * 0.5) + ')'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
+    } else {
+      ctx.strokeStyle = 'rgba(90,200,250,0.7)';
+      ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
+    }
   }
   // 체인 라이트닝
   for (const l of G.lightnings) {
-    ctx.strokeStyle = 'rgba(125,211,252,' + (l.t / l.maxT) + ')';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    l.pts.forEach((pt, i) => { if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
-    ctx.stroke();
+    const a = l.t / l.maxT;
+    const path = () => { ctx.beginPath(); l.pts.forEach((pt, i) => { if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); }); };
+    if (l.skillId && CONFIG.EVOLUTIONS[l.skillId]) {
+      path(); ctx.strokeStyle = 'rgba(168,85,247,' + (a * 0.7) + ')'; ctx.lineWidth = 9; ctx.stroke();
+      path(); ctx.strokeStyle = 'rgba(255,255,255,' + a + ')'; ctx.lineWidth = 3; ctx.stroke();
+    } else {
+      ctx.strokeStyle = 'rgba(125,211,252,' + a + ')';
+      ctx.lineWidth = 2;
+      path(); ctx.stroke();
+    }
   }
   // 플레이어
   const p = G.player;
@@ -141,8 +167,11 @@ function render() {
     if (!evoR || evoR.form !== 'spin') continue;
     const sst = skillStats(id, p.skills[id]);
     if (!sst) continue;
-    ctx.strokeStyle = 'rgba(160,110,230,0.55)'; ctx.lineWidth = 2; ctx.setLineDash([12, 6]);
-    ctx.beginPath(); ctx.arc(p.x, p.y, sst.radius, -G.time * 2.5, -G.time * 2.5 + Math.PI * 2); ctx.stroke();
+    const rr = sst.radius + Math.sin(G.time * 4) * 4;   // 펄스
+    ctx.strokeStyle = 'rgba(168,85,247,0.75)'; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.arc(p.x, p.y, rr, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(216,180,254,0.6)'; ctx.lineWidth = 2; ctx.setLineDash([12, 6]);
+    ctx.beginPath(); ctx.arc(p.x, p.y, rr, -G.time * 2.5, -G.time * 2.5 + Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]);
   }
   const psz = p.radius * 2.6;

@@ -45,6 +45,10 @@ function newRun() {
   g.knives = [];
   const _gdef = CONFIG.COMPANIONS.find(c => c.id === g.companion.id);
   if (_gdef.passive.maxHp) { g.player.maxHp += _gdef.passive.maxHp; g.player.hp = g.player.maxHp; }
+  genDungeon();   // 런 시작: 1스테이지 던전 생성
+  const pc = nearestRoomCenter(WORLD.w / 2, WORLD.h / 2);   // 룸 중심 스폰 (벽 겹침 방지)
+  g.player.x = pc.x; g.player.y = pc.y;
+  if (g.companion) { g.companion.x = pc.x - 45; g.companion.y = pc.y; }
   return g;
 }
 

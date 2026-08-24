@@ -36,5 +36,7 @@ globalThis.__game = {
   drawSprite,
   // 렌더 훅 — test_render_smoke.js가 render() 실제 호출을 검증하기 위함
   render, updateCamera, updateParticles, updateHUD,
+  // 시뮬레이션 훅 — headless 동작 검증 (테스트용)
+  updatePlayer, updateEnemies, updateProjectiles, updateWaves, updateStage, updateCompanion, spawnEnemy, spawnBoss,
 };
 requestAnimationFrame(loop);

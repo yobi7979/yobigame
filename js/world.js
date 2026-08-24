@@ -97,6 +97,10 @@ function updateStage(dt) {
     G.enemies = G.enemies.filter(e => e.type !== 'boss' && e.type !== 'miniboss');
     G.projectiles = G.projectiles.filter(pr => pr.friendly);
     G.waves.length = 0;
+    genDungeon();   // 다음 스테이지 새 던전
+    const pc2 = nearestRoomCenter(WORLD.w / 2, WORLD.h / 2);
+    G.player.x = pc2.x; G.player.y = pc2.y;
+    if (G.companion) { G.companion.x = G.player.x - 45; G.companion.y = G.player.y; }
   }
 }
 

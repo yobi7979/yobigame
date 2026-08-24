@@ -13,7 +13,7 @@ function updateCompanion(dt) {
   const d = Math.hypot(dx, dy) || 1;
   if (d > 40) {
     const sp = Math.min(280, d * 6) * dt;
-    c.x += dx / d * sp; c.y += dy / d * sp;
+    moveWithWalls(c, dx / d * sp, dy / d * sp, c.radius || 12);
   }
   c.atkTimer -= dt; c.ultTimer -= dt;
   if (c.id === 'warrior') {
@@ -146,7 +146,7 @@ function updateSkills(dt) {
               if (!next) break;
               hitList.push(next); cur = next;
             }
-            G.lightnings.push({ pts: zapPts([p].concat(hitList)), t: 0.2, maxT: 0.2 });
+            G.lightnings.push({ pts: zapPts([p].concat(hitList)), t: 0.25, maxT: 0.25, skillId: id });
             for (const e of hitList) G.particles.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .2, maxLife: .2, color: '#bde0fe', size: e.radius + 5, ring: true });
             for (const e of hitList) {
               damageEnemy(e, st.dmg * dmgMul(), { skillId: id });
@@ -154,7 +154,7 @@ function updateSkills(dt) {
             }
           } else {
             const a = Math.atan2(e0.y - p.y, e0.x - p.x);
-            G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, dmg: st.dmg, friendly: true, r: 8, life: 1.5, pierce: st.pierce || 0, burn: st.burn || 0, burnDps: st.burnDps || 0, poisonDps: st.poisonDps || 0, skillId: id });
+            G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, dmg: st.dmg, friendly: true, r: 8, vr: 15, life: 1.5, pierce: st.pierce || 0, burn: st.burn || 0, burnDps: st.burnDps || 0, poisonDps: st.poisonDps || 0, skillId: id });
           }
         }
       }

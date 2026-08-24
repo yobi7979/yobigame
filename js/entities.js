@@ -6,11 +6,9 @@ function spawnEnemy(forceType) {
   const type = forceType || rollEnemyType(stage, Math.random);
   const base = CONFIG.ENEMIES[type];
   const scale = enemyHpScale(stage);
-  const angle = Math.random() * Math.PI * 2;
-  const dist = 500 + Math.random() * 300;
+  const sp = findSpawnPos(450, 750);   // LOS 확인 지점, 범위 내 빈 공간 fallback
   const e = {
-    type, x: clamp(G.player.x + Math.cos(angle)*dist, 50, WORLD.w-50),
-    y: clamp(G.player.y + Math.sin(angle)*dist, 50, WORLD.h-50),
+    type, x: sp.x, y: sp.y,
     hp: Math.round(base.hp * scale), maxHp: Math.round(base.hp * scale),
     speed: base.speed, dmg: Math.round(base.dmg * enemyDmgScale(stage)),
     xp: base.xp, radius: type === 'tanky' ? 20 : type === 'miniboss' ? 30 : 13,
@@ -24,10 +22,10 @@ function spawnEnemy(forceType) {
 function spawnBoss(stage) {
   const bt = CONFIG.STAGES[stage - 1].bossType; // 'miniboss' | 'boss'
   const base = CONFIG.ENEMIES[bt];
-  const angle = Math.random() * Math.PI * 2;
+  const sp = findSpawnPos(500, 700);
   const e = {
     type: bt,
-    x: G.player.x + Math.cos(angle)*600, y: G.player.y + Math.sin(angle)*600,
+    x: sp.x, y: sp.y,
     hp: base.hp * enemyHpScale(stage), maxHp: base.hp * enemyHpScale(stage),
     speed: base.speed, dmg: base.dmg * enemyDmgScale(stage),
     xp: base.xp, radius: bt === 'miniboss' ? 30 : 44,
@@ -126,8 +124,7 @@ function updatePlayer(dt) {
     const len = Math.hypot(dx, dy); dx /= len; dy /= len;
     p.facing = { x: dx, y: dy };
     const spd = PLAYER.speed * (1 + (p.skills.speed ? skillStats('speed', p.skills.speed).pct : 0) / 100) * (G.tempBuffs.haste > 0 ? 1.5 : 1);
-    p.x = clamp(p.x + dx * spd * dt, PLAYER.radius, WORLD.w - PLAYER.radius);
-    p.y = clamp(p.y + dy * spd * dt, PLAYER.radius, WORLD.h - PLAYER.radius);
+    moveWithWalls(p, dx * spd * dt, dy * spd * dt, PLAYER.radius);
   }
   // 이동 트레일
   p.trail.push({ x: p.x, y: p.y });
@@ -234,8 +231,7 @@ function updateEnemies(dt) {
         }
         break;
     }
-    e.x = clamp(e.x + mx * spd * dt, 20, WORLD.w - 20);
-    e.y = clamp(e.y + my * spd * dt, 20, WORLD.h - 20);
+    moveWithWalls(e, mx * spd * dt, my * spd * dt, e.radius);
     // 충돌 데미지
     const rr = e.radius + p.radius;
     if (d < rr && p.invulnTimer <= 0) {
@@ -262,6 +258,7 @@ function updateProjectiles(dt) {
     pr.x += pr.vx * dt; pr.y += pr.vy * dt; pr.life -= dt;
     if (pr.life <= 0) { pr.dead = true; continue; }
     if (pr.x < 0 || pr.x > WORLD.w || pr.y < 0 || pr.y > WORLD.h) { pr.dead = true; continue; }
+    if (pointInWall(pr.x, pr.y)) { pr.dead = true; continue; }   // 벽 충돌: 투사체 소멸
     if (pr.friendly) {
       for (const e of G.enemies) {
         if (e.hp <= 0 || (pr.hitSet && pr.hitSet.has(e))) continue;
@@ -314,8 +311,8 @@ function updateWaves(dt) {
         damageEnemy(e, w.dmg * dmgMul(), { skillId: w.skillId });
         if (e.hp > 0 && w.kb) {
           const dd = Math.max(1, d), ux = (e.x - w.x) / dd, uy = (e.y - w.y) / dd;
-          e.x = Math.min(WORLD.w, Math.max(0, e.x + ux * w.kb));
-          e.y = Math.min(WORLD.h, Math.max(0, e.y + uy * w.kb));
+          e.x += ux * w.kb; e.y += uy * w.kb;
+          moveWithWalls(e, 0, 0, e.radius);   // 벽 밀어내기 해소
         }
         if (w.effect) applyStatus(e, w.effect, w.tier, w.skillId);
       }
