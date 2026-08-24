@@ -926,6 +926,10 @@
         const d = Math.sqrt(d2) || 1;
         it.x += ((p.x - it.x) / d) * 350 * dt;
         it.y += ((p.y - it.y) / d) * 350 * dt;
+      } else if (d2 < 100 * 100) { // 근접 시 자동 흡인
+        const d = Math.sqrt(d2) || 1;
+        it.x += ((p.x - it.x) / d) * 300 * dt;
+        it.y += ((p.y - it.y) / d) * 300 * dt;
       }
       if (d2 < 28 * 28) { applyItem(it.id); it.dead = true; }
     }
