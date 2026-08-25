@@ -1,5 +1,9 @@
 // js/skills.js — 스킬 — 동료 시스템, 진화 상태효과, 자동 발동
 // index.html IIFE에서 분리. 최상위 심볼은 스크립트 간 전역 렉시컬 스코프로 공유 (CONFIG 방식).
+// ===== 진화 스킬 튜닝 (2026-08-25 플레이테스트: 기본 2스킬 합 대비 압도 + 큰 이펙트 + 광역) =====
+const EVO_DMG_MULT = 1.8;   // 진화 데미지 배율 — 기본 설정은 2스킬 합 1.5x → 체감 2.7x. 튜닝 포인트
+const EVO_SPLASH = 120;     // 진화 투사체 스플래시 반경(px) — 최종 명중 시 65% 광역 데미지
+const EVO_SPIN_RAD = 1.3;   // 진화 스피류(회전형) 반경 배율
 // ===== 동료 시스템 =====
 const COMP_COLORS = { warrior: '#ff9f43', guardian: '#4dabf7', shadow: '#b197fc' };
 function updateCompanion(dt) {
@@ -101,7 +105,7 @@ function updateSkills(dt) {
     const lv = p.skills[id];
     const st = skillStats(id, lv);
     if (!st) continue;
-    p.skillTimers[id] = (p.skillTimers[id] === undefined ? 0 : p.skillTimers[id]) - dt;
+    p.skillTimers[id] = (p.skillTimers[id] === undefined ? 0 : p.skillTimers[id]) - dt * (1 + compAtkSpd()); // 동료 공격속도 — 스킬 쿨에도 적용
     let t = p.skillTimers[id];
     const evo = CONFIG.EVOLUTIONS[id];
     if (evo) {
@@ -111,11 +115,12 @@ function updateSkills(dt) {
         if (p.evoSpinAcc[id] >= (st.tick || 0.4)) {
           p.evoSpinAcc[id] = 0;
           let spinIn = false;
+          const spinRad = st.radius * EVO_SPIN_RAD;
           for (const e of G.enemies) {
             if (e.hp <= 0) continue;
-            if (dist2(e, p) <= st.radius * st.radius) {
+            if (dist2(e, p) <= spinRad * spinRad) {
               spinIn = true;
-              damageEnemy(e, st.dps * (st.tick || 0.4) * dmgMul(), { skillId: id });
+              damageEnemy(e, st.dps * (st.tick || 0.4) * EVO_DMG_MULT * dmgMul(), { skillId: id });
               if (e.hp <= 0) continue;
               if (evo.effect === 'kb') {
                 const dd = Math.max(1, Math.sqrt(dist2(e, p))), ux = (e.x - p.x) / dd, uy = (e.y - p.y) / dd;
@@ -132,15 +137,15 @@ function updateSkills(dt) {
           t = st.cd;
           playSfx(evo.form === 'aoe' ? 'explosion' : evo.form === 'wave' ? 'tidal' : evo.form === 'chain' ? 'chainlightning' : id.replace('evo_', '').split('_')[0]);
           if (evo.form === 'aoe') {
-            boom(e0.x, e0.y, st.radius, 0.3);
+            boom(e0.x, e0.y, st.radius * 1.4, 0.5);
             for (const e of G.enemies) {
               if (e.hp > 0 && dist2(e, e0) < st.radius * st.radius) {
-                damageEnemy(e, st.dmg * dmgMul(), { skillId: id });
+                damageEnemy(e, st.dmg * EVO_DMG_MULT * dmgMul(), { skillId: id });
                 if (e.hp > 0) applyStatus(e, evo.effect, st, id);
               }
             }
           } else if (evo.form === 'wave') {
-            G.waves.push({ x: p.x, y: p.y, r: 40, maxR: st.maxR, speed: 320, dmg: st.dmg, kb: st.kb || 0, effect: evo.effect, tier: st, skillId: id, hit: new Set() });
+            G.waves.push({ x: p.x, y: p.y, r: 60, maxR: st.maxR * 1.35, speed: 360, dmg: st.dmg * EVO_DMG_MULT, kb: st.kb || 0, effect: evo.effect, tier: st, skillId: id, hit: new Set() });
           } else if (evo.form === 'chain') {
             const hitList = [e0];
             let cur = e0;
@@ -151,14 +156,15 @@ function updateSkills(dt) {
               hitList.push(next); cur = next;
             }
             G.lightnings.push({ pts: zapPts([p].concat(hitList)), t: 0.25, maxT: 0.25, skillId: id });
-            for (const e of hitList) G.particles.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .2, maxLife: .2, color: '#bde0fe', size: e.radius + 5, ring: true });
+            for (const e of hitList) G.particles.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .2, maxLife: .2, color: '#bde0fe', size: e.radius + 9, ring: true });
+            G.shake = Math.min(1, G.shake + 0.15);
             for (const e of hitList) {
-              damageEnemy(e, st.dmg * dmgMul(), { skillId: id });
+              damageEnemy(e, st.dmg * EVO_DMG_MULT * dmgMul(), { skillId: id });
               if (e.hp > 0) applyStatus(e, evo.effect, st, id);
             }
           } else {
             const a = Math.atan2(e0.y - p.y, e0.x - p.x);
-            G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, dmg: st.dmg, friendly: true, r: 8, vr: 15, life: 1.5, pierce: st.pierce || 0, burn: st.burn || 0, burnDps: st.burnDps || 0, poisonDps: st.poisonDps || 0, skillId: id });
+            G.projectiles.push({ x: p.x, y: p.y, vx: Math.cos(a) * 480, vy: Math.sin(a) * 480, dmg: st.dmg * EVO_DMG_MULT, friendly: true, r: 13, vr: 22, life: 1.5, pierce: st.pierce || 0, burn: st.burn || 0, burnDps: st.burnDps || 0, poisonDps: st.poisonDps || 0, splash: EVO_SPLASH, splashDmg: st.dmg * EVO_DMG_MULT * 0.65, skillId: id });
           }
         }
       }

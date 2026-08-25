@@ -334,6 +334,8 @@ function updateHUD() {
   killsEl.textContent = stg.boss
     ? (G.bossSpawned ? (G.boss ? '👹 보스전  ' : '✔  ') : '보스 대기  ') + G.kills + '/' + stg.clearKills
     : G.kills + '/' + stg.clearKills;
+  atkPct.textContent = Math.round(dmgMul() * 100) + '%';
+  atkSpdPct.textContent = Math.round((1 + compAtkSpd()) * 100) + '%';
   const act = [];
   if (G.tempBuffs.rage > 0) act.push('🔥' + Math.ceil(G.tempBuffs.rage));
   if (G.tempBuffs.haste > 0) act.push('👟' + Math.ceil(G.tempBuffs.haste));

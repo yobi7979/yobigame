@@ -150,7 +150,7 @@ function updatePlayer(dt) {
       .sort((a, b) => dist2(a, p) - dist2(b, p)).slice(0, 1);
     if (targets.length) {
       const cdMul = p.skills.multishot ? (p.skills.multishot >= 4 ? 0.9 : 1) * (p.skills.multishot >= 5 ? 0.9 : 1) : 1;
-      p.atkTimer = PLAYER.atkCd * cdMul / hits * (1 - compAtkSpd());
+      p.atkTimer = PLAYER.atkCd * cdMul / hits / (1 + compAtkSpd());
       for (const t of targets) {
         for (let i = 0; i < hits; i++) damageEnemy(t, PLAYER.atkDmg * (i === 0 ? 1 : 0.5) * dmgMul(), { fromMelee: true });
         G.particles.push({ x: t.x, y: t.y, vx: (Math.random()-.5)*80, vy: (Math.random()-.5)*80, life: .12, maxLife: .12, color: '#fff', size: 4 });
@@ -217,8 +217,8 @@ function updateEnemies(dt) {
         e.shootTimer -= dt;
         if (e.shootTimer <= 0) {
           e.shootTimer = 2;
-          for (let i = 0; i < 8; i++) {
-            const a = (i / 8) * Math.PI * 2 + G.time;
+          for (let i = 0; i < 3; i++) {   // 구슬 8→3 (플레이테스트: 너무 많아)
+            const a = (i / 3) * Math.PI * 2 + G.time;
             G.projectiles.push({ x: e.x, y: e.y, vx: Math.cos(a) * 220, vy: Math.sin(a) * 220, dmg: e.dmg, friendly: false, r: 6, life: 4 });
           }
         }
@@ -312,6 +312,7 @@ function updateProjectiles(dt) {
           }
           if (pr.pierce > 0) { pr.pierce--; if (!pr.hitSet) pr.hitSet = new Set(); pr.hitSet.add(e); }
           else { pr.dead = true; }
+          if (pr.dead && pr.splash) evoSplash(pr);
           if (pr.dead) break;
         }
       }
@@ -332,6 +333,21 @@ function updateProjectiles(dt) {
     }
   }
   G.projectiles = G.projectiles.filter(pr => !pr.dead);
+}
+
+// ===== 진화 투사체 스플래시 =====
+// 최종 명중 시 스플래시 반경 내 광역 데미지 + 폭발 이펙트 (진화 스킬 광역 요건)
+function evoSplash(pr) {
+  boom(pr.x, pr.y, pr.splash, 0.35);
+  for (const e of G.enemies) {
+    if (e.hp <= 0) continue;
+    if (dist2(e, pr) > pr.splash * pr.splash) continue;
+    damageEnemy(e, pr.splashDmg * dmgMul(), pr.skillId ? { skillId: pr.skillId } : {});
+    if (e.hp > 0) {
+      if (pr.burn) { e.burn = pr.burn; e.burnDps = pr.burnDps; }
+      if (pr.poisonDps) { e.poisonDps = Math.max(e.poisonDps || 0, pr.poisonDps); e.poisonDur = Math.max(e.poisonDur || 0, 3); }
+    }
+  }
 }
 
 // ===== 링 웨이브 (tidal / 진화 해일류) =====

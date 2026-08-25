@@ -21,6 +21,7 @@
   #timer { font-size: 14px; white-space: nowrap; }
   #kills { font-size: 14px; white-space: nowrap; }
   #buffs { font-size: 14px; white-space: nowrap; color: #9ad1ff; }
+  #pstats { font-size: 13px; white-space: nowrap; color: #ffd166; }
   /* 보스 바 */
   #bossBar { position: fixed; top: calc(env(safe-area-inset-top) + 14px); left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 24px)); display: none; z-index: 11; }
   #bossName { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 4px; }
@@ -72,11 +73,12 @@
     .bar { height: 14px; }
     .bar-text { font-size: 10px; }
     #stageInfo, #timer, #kills, #buffs { font-size: 12px; flex: 1 1 0; text-align: center; white-space: nowrap; }
-    #bossBar { top: calc(env(safe-area-inset-top) + 72px); }
+    #pstats { flex: 1 1 100%; text-align: center; font-size: 12px; }
+    #bossBar { top: calc(env(safe-area-inset-top) + 92px); }
     #skills { left: auto; right: 8px; bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: column; gap: 8px; max-height: 72vh; overflow-y: auto; }
     .skill-icon { width: 44px; height: 44px; font-size: 18px; }
     .skill-dmg { bottom: auto; right: calc(100% + 6px); top: 50%; transform: translateY(-50%); }
-    #compChip { right: auto; left: 10px; bottom: auto; top: 78px; }
+    #compChip { right: auto; left: 10px; bottom: auto; top: 138px; }
     /* 모바일: 5스킬 선택 축소 (2개/행 컴팩트) */
     .modal { width: 94%; padding: 18px 14px; border-radius: 14px; }
     .modal h2 { font-size: 1.3em; margin-bottom: 6px; }
@@ -105,6 +107,7 @@
   <div id="stageInfo">Stage 1</div>
   <div id="timer">2:00</div>
   <div id="kills">0/40</div>
+  <div id="pstats" title="공격력 / 공격속도 (동료 buff 포함)">⚔️ <span id="atkPct">100%</span> · 👟 <span id="atkSpdPct">100%</span></div>
   <div id="buffs"></div>
 </div>
 

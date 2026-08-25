@@ -61,6 +61,7 @@ function applyItem(id) {
   else if (id === 'magnet') { G.tempBuffs.magnet = 8; }
   G.floaters.push({ x: p.x, y: p.y - 26, txt: def.name, color: def.color, t: 0.9, maxT: 0.9 });
   if (G.floaters.length > 60) G.floaters.shift();
+  if (Math.random() < CONFIG.DROP_PICK_CHANCE) { G.levelupQueue++; if (G.state === 'playing') openLevelup(); } // 15% 무료 스킬 선택
 }
 
 // ===== 스테이지 / 스폰 / 클리어 =====

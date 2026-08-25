@@ -58,6 +58,8 @@ const CONFIG = {
   // 일반 몬스터: 아이템마다 독립 롤, p = weight/100 × ITEM_DROP_BASE (합계 ≈8%)
   // 미니보스: 확정 1개 / 최종보스: 확정 3개 (가중치 롤)
   ITEM_DROP_BASE: 0.08,
+  // 아이템 픽업 시 무료 스킬 선택 확률
+  DROP_PICK_CHANCE: 0.15,
   ITEMS: {
     heart:  { label: '❤',  name: '최대HP+15',        color: '#ff6b9d', weight: 22 },
     gem:    { label: '💎', name: '공격+8% (영구)', color: '#c084fc', weight: 16 },
@@ -274,24 +276,24 @@ const CONFIG = {
   COMPANIONS: [
     {
       id: 'warrior', name: '광전사', icon: '⚔️',
-      passive: { dmgPct: 25 },
+      passive: { dmgPct: 25, atkSpdPct: 10 },
       atk: { cd: 1.5, range: 130, dmg: 30 },
       ult: { cd: 12, radius: 100, dmg: 80, label: '전쟁의 포효' },
-      desc: '공격력 +25%<br>자동공격 30데미지 / 포효: 주변 80데미지',
+      desc: '공격력 +25% · 공격속도 +10%<br>자동공격 30데미지 / 포효: 주변 80데미지',
     },
     {
       id: 'guardian', name: '수호자', icon: '🛡️',
-      passive: { maxHp: 50 },
+      passive: { maxHp: 50, dmgPct: 10, atkSpdPct: 10 },
       heal: { cd: 10, amount: 15 },
       ult: { cd: 15, shield: 60, label: '장벽' },
-      desc: '최대 체력 +50<br>자동 회복 15 / 장벽: 보호막 60',
+      desc: '최대 체력 +50 · 공격력/공속 +10%<br>자동 회복 15 / 장벽: 보호막 60',
     },
     {
       id: 'shadow', name: '그림자', icon: '🗡️',
-      passive: { atkSpdPct: 25 },
+      passive: { atkSpdPct: 25, dmgPct: 10 },
       atk: { cd: 0.8, range: 160, dmg: 8, projSpeed: 320 },
       ult: { cd: 12, range: 150, hits: 3, dmg: 12, label: '그림자 일격' },
-      desc: '공격속도 +25%<br>칼날 8데미지 / 그림자 일격: 3연격 12',
+      desc: '공격속도 +25% · 공격력 +10%<br>칼날 8데미지 / 그림자 일격: 3연격 12',
     },
   ],
 };
