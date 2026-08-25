@@ -2,7 +2,16 @@
 // index.html IIFE에서 분리. 최상위 심볼은 스크립트 간 전역 렉시컬 스코프로 공유 (CONFIG 방식).
 // ===== 렌더 =====
 let floorPattern = null;
+let floorPatternTex = false; // true = floor_pattern이 ASSETS.floor_tex 기반으로 빌드됨
 function buildFloorPattern() {
+  // floor_tex 로드 완료: 1024→512 스케일 캔버스로 패턴 (시ーム리스)
+  if (ASSETS.floor_tex) {
+    const t = document.createElement('canvas');
+    t.width = 512; t.height = 512;
+    t.getContext('2d').drawImage(ASSETS.floor_tex, 0, 0, 512, 512);
+    return t;
+  }
+  // 미로드 폴백: 기존 절차적 400×400
   const c = document.createElement('canvas');
   c.width = 400; c.height = 400;
   const f = c.getContext('2d');
@@ -34,8 +43,12 @@ function render() {
   if (!G) return;
   ctx.save();
   ctx.translate(-Math.round(cam.x), -Math.round(cam.y));
-  // 배경: 프로시저럴 바닥 패턴 (400x400 오프스크린, 결정적)
-  if (!floorPattern) floorPattern = ctx.createPattern(buildFloorPattern(), 'repeat');
+  // 배경: 바닥 패턴 — floor_tex 로드 시 텍스처, 미로드 시 절차적 폴백.
+  // 텍스처가 늦게 로드되면 1회만 재빌드 (패턴의 월드 좌표 고정 메커니즘은 그대로)
+  if (!floorPattern || (ASSETS.floor_tex && !floorPatternTex)) {
+    floorPattern = ctx.createPattern(buildFloorPattern(), 'repeat');
+    floorPatternTex = !!ASSETS.floor_tex;
+  }
   ctx.fillStyle = floorPattern;
   ctx.fillRect(cam.x - 512, cam.y - 512, canvas.width + 1024, canvas.height + 1024);
   // 월드 경계

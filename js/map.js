@@ -157,20 +157,87 @@ function findSpawnPos(minDist, maxDist) {
 }
 
 // 벽 렌더 (가시 영역만)
+let wallPattern = null; // wall_tex 기반 패턴 캐시 (로드 완료 시 1회 생성)
+
+// 면 노출 판정: 각 면 중앙의 외부 ~2px 지점에 다른 벽 rect가 없으면 노출면(빈 바닥)
+// true = 노출(밝은 테두리), false = 닫힘(인접 벽과 맞닿은 이음, 어두운 테두리)
+function wallExposedFaces(rc) {
+  const cx = rc.x + rc.w / 2, cy = rc.y + rc.h / 2;
+  return {
+    top: !pointInWall(cx, rc.y - 2),
+    bottom: !pointInWall(cx, rc.y + rc.h + 2),
+    left: !pointInWall(rc.x - 2, cy),
+    right: !pointInWall(rc.x + rc.w + 2, cy),
+  };
+}
+
+// 테두리 밴드를 다른 벽 rect로 클리핑.
+// T자 이음에서는 wall rect가 20px 겹쳐 → 밴드가 인접벽 면을 가로지르는 줄(시임) 방지를 위해
+// 다른 벽이 차지하는 부분을 잘라낸 부분 사각형 목록 [x,y,w,h] 반환 (전부 가리면 빈 배열)
+function wallEdgeSegments(x1, y1, x2, y2, self) {
+  const horiz = (x2 - x1) >= (y2 - y1); // 가로 밴드는 x 축, 세로 밴드는 y 축으로 자름
+  let segs = horiz ? [[x1, x2]] : [[y1, y2]];
+  for (const o of MAP.wallRects) {
+    if (o === self) continue;
+    const ix1 = Math.max(x1, o.x), ix2 = Math.min(x2, o.x + o.w);
+    const iy1 = Math.max(y1, o.y), iy2 = Math.min(y2, o.y + o.h);
+    if (ix2 <= ix1 || iy2 <= iy1) continue;
+    const ca = horiz ? ix1 : iy1, cb = horiz ? ix2 : iy2;
+    segs = segs.flatMap(([a, b]) => {
+      if (cb <= a || ca >= b) return [[a, b]];
+      const out = [];
+      if (a < ca) out.push([a, ca]);
+      if (cb < b) out.push([cb, b]);
+      return out;
+    });
+  }
+  return segs.map(([a, b]) => (horiz ? [a, y1, b - a, y2 - y1] : [x1, a, x2 - x1, b - a]));
+}
+
 function drawWalls() {
   const xr = cam.x + canvas.width, yr = cam.y + canvas.height;
+  const wt = ASSETS.wall_tex;
+  // 텍스처 로드 시: createPattern은 카메라 변환 안에서 fillRect하면
+  // 패턴이 월드 기점에 바닥과 동일하게 고정됨
+  const wp = wt ? (wallPattern || (wallPattern = ctx.createPattern(wt, 'repeat'))) : null;
+  const FACE_T = 3; // 노출/이음 테두리 두께
   for (const rc of MAP.wallRects) {
     if (rc.x + rc.w < cam.x || rc.x > xr || rc.y + rc.h < cam.y || rc.y > yr) continue;
-    ctx.fillStyle = '#232a41';
+    if (!wt) {
+      // 미로드 폴백: 기존 절차적 석재 스타일
+      ctx.fillStyle = '#232a41';
+      ctx.fillRect(rc.x, rc.y, rc.w, rc.h);
+      ctx.fillStyle = 'rgba(0,0,0,0.28)';
+      if (rc.w > rc.h) { for (let y = rc.y + 40; y < rc.y + rc.h; y += 40) ctx.fillRect(rc.x, y, rc.w, 2); }
+      else { for (let x = rc.x + 40; x < rc.x + rc.w; x += 40) ctx.fillRect(x, rc.y, 2, rc.h); }
+      ctx.fillStyle = '#3d4666';
+      ctx.fillRect(rc.x, rc.y, rc.w, Math.min(5, rc.h));
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(rc.x, rc.y + rc.h - 5, rc.w, 5);
+      ctx.fillRect(rc.x + rc.w - 4, rc.y, 4, rc.h);
+      continue;
+    }
+    // 로드 완료: 텍스처 패턴으로 벽 채우기 (패턴 생성 실패 시 베이스색 폴백)
+    ctx.fillStyle = wp || '#232a41';
     ctx.fillRect(rc.x, rc.y, rc.w, rc.h);
-    ctx.fillStyle = 'rgba(0,0,0,0.28)';
-    if (rc.w > rc.h) { for (let y = rc.y + 40; y < rc.y + rc.h; y += 40) ctx.fillRect(rc.x, y, rc.w, 2); }
-    else { for (let x = rc.x + 40; x < rc.x + rc.w; x += 40) ctx.fillRect(x, rc.y, 2, rc.h); }
-    ctx.fillStyle = '#3d4666';
-    ctx.fillRect(rc.x, rc.y, rc.w, Math.min(5, rc.h));
+    // 4면: 노출면 → 밝은 테두리 (하이라이트), 닫힌 면 → 어두운 테두리 (이음 그림자)
+    // wallEdgeSegments로 인접벽 겹침 부분 클리핑 (T자 이음 시임 방지)
+    const f = wallExposedFaces(rc);
+    const drawBand = (x1, y1, x2, y2) => {
+      for (const [sx, sy, sw, sh] of wallEdgeSegments(x1, y1, x2, y2, rc)) {
+        ctx.fillRect(sx, sy, sw, sh);
+      }
+    };
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
-    ctx.fillRect(rc.x, rc.y + rc.h - 5, rc.w, 5);
-    ctx.fillRect(rc.x + rc.w - 4, rc.y, 4, rc.h);
+    if (!f.top) drawBand(rc.x, rc.y, rc.x + rc.w, rc.y + FACE_T);
+    if (!f.bottom) drawBand(rc.x, rc.y + rc.h - FACE_T, rc.x + rc.w, rc.y + rc.h);
+    if (!f.left) drawBand(rc.x, rc.y, rc.x + FACE_T, rc.y + rc.h);
+    if (!f.right) drawBand(rc.x + rc.w - FACE_T, rc.y, rc.x + rc.w, rc.y + rc.h);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    if (f.top) drawBand(rc.x, rc.y, rc.x + rc.w, rc.y + FACE_T);
+    if (f.bottom) drawBand(rc.x, rc.y + rc.h - FACE_T, rc.x + rc.w, rc.y + rc.h);
+    if (f.left) drawBand(rc.x, rc.y, rc.x + FACE_T, rc.y + rc.h);
+    if (f.right) drawBand(rc.x + rc.w - FACE_T, rc.y, rc.x + rc.w, rc.y + rc.h);
   }
 }
 
@@ -181,5 +248,5 @@ function nearestRoomCenter(x, y) {
   return { x: (c + 0.5) * MAP.cell, y: (r + 0.5) * MAP.cell };
 }
 
-const MAP_EXPORTS = { MAP, mulberry32, genDungeon, circleRectOverlap, moveWithWalls, pointInWall, hasLOS, findSpawnPos, drawWalls, nearestRoomCenter };
+const MAP_EXPORTS = { MAP, mulberry32, genDungeon, circleRectOverlap, moveWithWalls, pointInWall, hasLOS, findSpawnPos, drawWalls, wallExposedFaces, nearestRoomCenter };
 if (typeof module !== 'undefined') module.exports = MAP_EXPORTS;
