@@ -97,7 +97,9 @@ function sfxNoise(dur, opt) {
   const { vol = 0.08, freq = 1500, q = 1, delay = 0, type = 'bandpass' } = opt || {};
   const t0 = ACTX.currentTime + delay;
   const src = ACTX.createBufferSource(); src.buffer = noiseBuf();
-  const f = ACTX.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, t0); f.Q.value = q;
+  const f = ACTX.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, t0);
+  if (opt && opt.slide) f.frequency.linearRampToValueAtTime(Math.max(80, freq + opt.slide), t0 + dur);
+  f.Q.value = q;
   const g = ACTX.createGain();
   g.gain.setValueAtTime(0.0001, t0);
   g.gain.exponentialRampToValueAtTime(vol * SFX_VOL, t0 + 0.01);
@@ -225,6 +227,9 @@ function spinSfx(active) {
 }
 
 // ===== 코드합성 미세효과음 — 밝고 튀는 톤 =====
+function sfxSwing() { // 기본공격 스윙 — 밝은 상승 스와시 (1.5k→3k)
+  sfxNoise(0.09, { vol: 0.045, freq: 1500, q: 1.1, slide: 1500 });
+}
 function sfxHit() { // 적 명중 (45ms 스로틀)
   if (!ACTX) return;
   const now = ACTX.currentTime;

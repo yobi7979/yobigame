@@ -158,6 +158,8 @@ function updatePlayer(dt) {
       // 슬래시 이펙트
       const a = Math.atan2(targets[0].y - p.y, targets[0].x - p.x);
       G.slashes.push({ x: p.x, y: p.y, angle: a, range, t: 0.16, maxT: 0.16 });
+      sfxSwing(); // 스와시 + 명중 틱
+      sfxHit();
     }
   }
 }
