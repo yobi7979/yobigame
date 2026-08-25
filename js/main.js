@@ -21,6 +21,7 @@ function loop(t) {
     updateStage(dt);
     if (G.player.hp <= 0 && G.state === 'playing') gameOver();
   }
+  syncMusicToState(); // BGM/스핀 on-off를 게임 상태와 동기화 (playing: on, 모달/종료: off)
   if (G.state === 'playing' || G.state === 'levelup' || G.state === 'menu') updateParticles(dt);
   if (G.state === 'playing') updateCamera(dt);
   render();
@@ -36,6 +37,10 @@ globalThis.__game = {
   drawSprite,
   // 렌더 훅 — test_render_smoke.js가 render() 실제 호출을 검증하기 위함
   render, updateCamera, updateParticles, updateHUD,
+  // 오디오 상태 동기화 훅 — test_render_smoke.js가 모달 BGM 정지/복원을 검증하기 위함
+  syncMusicToState,
+  setState: (s) => { if (G) G.state = s; },
+  get musicPlaying() { return !!(MUSIC_TIMER); },
   // 시뮬레이션 훅 — headless 동작 검증 (테스트용)
   updatePlayer, updateEnemies, updateProjectiles, updateWaves, updateStage, updateCompanion, spawnEnemy, spawnBoss,
 };

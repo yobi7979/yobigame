@@ -69,6 +69,17 @@ function toggleMusic() {
   if (ACTX) { if (MUSIC_ON) startMusic(); else stopMusic(); }
   return MUSIC_ON;
 }
+// ===== 게임 상태별 BGM/스핀 동기화 — playing: 재생, 모달(levelup/evolve)·종료(gameover/win/menu): 정지 =====
+// main.js 루프에서 매 프레임 호출 (멱등: flag 가드로 상태 전환 시점에 1회만 실제 동작)
+function syncMusicToState() {
+  if (typeof G === 'undefined' || !G) return;
+  if (G.state === 'playing') {
+    if (MUSIC_ON && ACTX && !MUSIC_TIMER) startMusic();
+  } else {
+    if (MUSIC_TIMER) stopMusic();
+    spinSfx(false); // 스피 오라도 함께 정지 — playing 복귀 시 updateSkills가 매 틱 재평가
+  }
+}
 
 // ===== 기본 합성 도구 =====
 function noiseBuf() {
@@ -268,7 +279,7 @@ function initAudio() {
   MUSIC_G = ACTX.createGain();
   MUSIC_G.gain.value = 0.9;
   MUSIC_G.connect(MASTER);
-  if (MUSIC_ON) startMusic();
+  if (MUSIC_ON && (!G || G.state === 'playing')) startMusic(); // 메뉴(첫 입력)에선 시작 안 함 — playing 시작 시 syncMusicToState가 시작
 }
 function resumeAudio() {
   if (ACTX && ACTX.state === 'suspended') ACTX.resume().then(() => {
