@@ -270,7 +270,14 @@ function initAudio() {
   MUSIC_G.connect(MASTER);
   if (MUSIC_ON) startMusic();
 }
-function resumeAudio() { if (ACTX && ACTX.state === 'suspended') ACTX.resume(); }
+function resumeAudio() {
+  if (ACTX && ACTX.state === 'suspended') ACTX.resume().then(() => {
+    if (MUSIC_TIMER) MUSIC_NEXT_T = ACTX.currentTime + 0.1; // 숨겨있던 구간 skip → catch-up 버스트 방지
+  }).catch(() => {});
+}
+function suspendAllAudio() { // 탭 숨김/최소화 — BGM/SFX/스핀 아우라 전부 정지
+  if (ACTX && ACTX.state === 'running') ACTX.suspend();
+}
 function setSfxMuted(m) {
   SFX_MUTED = !!m;
   if (MASTER) MASTER.gain.value = SFX_MUTED ? 0 : 0.5;
@@ -283,4 +290,11 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
   window.addEventListener('keydown', (e) => {
     if (e.key === 'm' || e.key === 'M') toggleMusic();
   });
+  // 탭 최소화/숨김 → 오디오 전체 정지, 복원 시 재생
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) suspendAllAudio();
+      else resumeAudio();
+    });
+  }
 }
