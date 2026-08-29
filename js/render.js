@@ -108,7 +108,7 @@ function render() {
   ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
   // 적 (애니메이션 프레임 / 정적 에셋 폴백 → 원 폴백)
   for (const e of G.enemies) {
-    if (!drawSprite('enemy_' + e.type, e.x, e.y, e.radius * 2, e.animT || 0, true, e.phase)) {
+    if (!drawSprite('enemy_' + e.type, e.x, e.y, e.radius * 2, e.animT || 0, true, e.phase, e.atkAnimT || 0)) {
       ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : ENEMY_COLORS[e.type];
       ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.fill();
     } else if (e.hitFlash > 0) {
@@ -205,7 +205,7 @@ function render() {
     ctx.setLineDash([]);
   }
   const psz = p.radius * 2.6;
-  if (!drawSprite('player', p.x, p.y, psz, p.animT || 0, p.moving, 0)) {
+  if (!drawSprite('player', p.x, p.y, psz, p.animT || 0, p.moving, 0, p.atkAnimT || 0)) {
     ctx.fillStyle = p.flash > 0 ? '#ff8899' : '#ffffff';
     ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
   }
@@ -227,7 +227,7 @@ function render() {
   if (G.companion) {
     const c = G.companion;
     const cdef = CONFIG.COMPANIONS.find(x => x.id === c.id);
-    const cdrawn = drawSprite('comp_' + c.id, c.x, c.y, 26, G.time, true, 1);
+    const cdrawn = drawSprite('comp_' + c.id, c.x, c.y, 26, G.time, true, 1, c.atkAnimT || 0);
     if (!cdrawn) {
       ctx.fillStyle = COMP_COLORS[c.id] || '#ffffff';
       ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.fill();

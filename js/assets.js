@@ -47,7 +47,30 @@ for (const an in ANIM_SPECS) {
     img.src = 'assets/' + an + '_f' + i + '.png';
   }
 }
-function drawSprite(name, x, y, size, animT, moving, phase) {
+// ===== 공격 애니메이션 (4프레임 시트 / player 6프레임) =====
+// 공격 트리거 시 atkAnimT = ATK_DUR 설정 → 0까지 카운트다운. >0 동안 drawSprite가 공격 프레임 우선 렌더.
+const ATK_DUR = 0.32;
+const ATK_ANIM_NAMES = ['player','enemy_basic','enemy_fast','enemy_tanky','enemy_ranged','enemy_miniboss','enemy_boss','comp_warrior','comp_guardian','comp_shadow'];
+const ATK_FRAME_COUNT = { player: 6 };   // 나머지 10종은 4프레임
+const ATK_ANIM = {};
+for (const an of ATK_ANIM_NAMES) {
+  const n = ATK_FRAME_COUNT[an] || 4;
+  const frames = [];
+  let loaded = 0;
+  for (let i = 0; i < n; i++) {
+    const img = new Image();
+    img.onload = () => { loaded++; frames[i] = img; if (loaded === n) ATK_ANIM[an] = frames; };
+    img.src = 'assets/' + an + '_a' + i + '.png';
+  }
+}
+function drawSprite(name, x, y, size, animT, moving, phase, atkAnimT) {
+  if (atkAnimT > 0 && ATK_ANIM[name]) {
+    const frames = ATK_ANIM[name];
+    const t = clamp(atkAnimT / ATK_DUR, 0, 1);
+    const idx = Math.min(frames.length - 1, Math.floor((1 - t) * frames.length));
+    ctx.drawImage(frames[idx], x - size / 2, y - size / 2, size, size);
+    return true;
+  }
   const frames = ANIM[name];
   if (frames) {
     const spec = ANIM_SPECS[name];

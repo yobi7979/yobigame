@@ -12,7 +12,7 @@ function spawnEnemy(forceType) {
     hp: Math.round(base.hp * scale), maxHp: Math.round(base.hp * scale),
     speed: base.speed, dmg: Math.round(base.dmg * enemyDmgScale(stage)),
     xp: base.xp, radius: type === 'tanky' ? 20 : type === 'miniboss' ? 30 : 13,
-    slow: 0, stun: 0, hitFlash: 0,
+    slow: 0, stun: 0, hitFlash: 0, atkAnimT: 0,
     shootTimer: (type === 'ranged' || type === 'miniboss' || type === 'boss') ? 1 : 0,
     animT: Math.random() * 2, phase: Math.random() * 6.28,
   };
@@ -29,7 +29,7 @@ function spawnBoss(stage) {
     hp: base.hp * enemyHpScale(stage), maxHp: base.hp * enemyHpScale(stage),
     speed: base.speed, dmg: base.dmg * enemyDmgScale(stage),
     xp: base.xp, radius: bt === 'miniboss' ? 30 : 44,
-    slow: 0, stun: 0, hitFlash: 0, shootTimer: 2,
+    slow: 0, stun: 0, hitFlash: 0, atkAnimT: 0, shootTimer: 2,
     animT: 0, phase: Math.random() * 6.28,
   };
   G.boss = e;
@@ -138,6 +138,7 @@ function updatePlayer(dt) {
   p.trail.push({ x: p.x, y: p.y });
   if (p.trail.length > 8) p.trail.shift();
   p.atkTimer -= dt;
+  p.atkAnimT = Math.max(0, p.atkAnimT - dt);
   p.invulnTimer -= dt;
   p.flash = Math.max(0, p.flash - dt);
   if (p.shield > 0) { p.shieldDur -= dt; if (p.shieldDur <= 0) p.shield = 0; }
@@ -151,6 +152,7 @@ function updatePlayer(dt) {
     if (targets.length) {
       const cdMul = p.skills.multishot ? (p.skills.multishot >= 4 ? 0.9 : 1) * (p.skills.multishot >= 5 ? 0.9 : 1) : 1;
       p.atkTimer = PLAYER.atkCd * cdMul / hits / (1 + compAtkSpd());
+      p.atkAnimT = ATK_DUR;   // 공격 애니메이션 트리거
       for (const t of targets) {
         for (let i = 0; i < hits; i++) damageEnemy(t, PLAYER.atkDmg * (i === 0 ? 1 : 0.5) * dmgMul(), { fromMelee: true });
         G.particles.push({ x: t.x, y: t.y, vx: (Math.random()-.5)*80, vy: (Math.random()-.5)*80, life: .12, maxLife: .12, color: '#fff', size: 4 });
@@ -185,6 +187,7 @@ function updateEnemies(dt) {
     // 스톤
     if (e.stun > 0) { e.stun -= dt; continue; }
     e.animT = (e.animT || 0) + dt;
+    e.atkAnimT = Math.max(0, (e.atkAnimT || 0) - dt);
     // 감속
     let mul = 1;
     if (e.slowDur > 0) { e.slowDur -= dt; mul = 1 - e.slow / 100; if (e.slowDur <= 0) e.slow = 0; }
@@ -209,6 +212,7 @@ function updateEnemies(dt) {
         e.shootTimer -= dt;
         if (e.shootTimer <= 0 && d < 400) {
           e.shootTimer = 1.5;
+          e.atkAnimT = ATK_DUR;
           G.projectiles.push({ x: e.x, y: e.y, vx: nx * 260, vy: ny * 260, dmg: e.dmg, friendly: false, r: 5, life: 3 });
         }
         break;
@@ -217,6 +221,7 @@ function updateEnemies(dt) {
         e.shootTimer -= dt;
         if (e.shootTimer <= 0) {
           e.shootTimer = 2;
+          e.atkAnimT = ATK_DUR;
           for (let i = 0; i < 3; i++) {   // 구슬 8→3 (플레이테스트: 너무 많아)
             const a = (i / 3) * Math.PI * 2 + G.time;
             G.projectiles.push({ x: e.x, y: e.y, vx: Math.cos(a) * 220, vy: Math.sin(a) * 220, dmg: e.dmg, friendly: false, r: 6, life: 4 });
@@ -228,6 +233,7 @@ function updateEnemies(dt) {
         e.shootTimer -= dt;
         if (e.shootTimer <= 0) {
           e.shootTimer = 2;
+          e.atkAnimT = ATK_DUR;
           for (let i = 0; i < 8; i++) {
             const a = (i / 8) * Math.PI * 2 + G.time * 0.7;
             G.projectiles.push({ x: e.x, y: e.y, vx: Math.cos(a) * 240, vy: Math.sin(a) * 240, dmg: e.dmg * 0.6, friendly: false, r: 6, life: 4 });

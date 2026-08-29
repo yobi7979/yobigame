@@ -20,11 +20,13 @@ function updateCompanion(dt) {
     moveWithWalls(c, dx / d * sp, dy / d * sp, c.radius || 12);
   }
   c.atkTimer -= dt; c.ultTimer -= dt;
+  c.atkAnimT = Math.max(0, (c.atkAnimT || 0) - dt);
   if (c.id === 'warrior') {
     if (c.atkTimer <= 0) {
       const t = nearestEnemy(c.x, c.y, def.atk.range);
       if (t) {
         c.atkTimer = def.atk.cd;
+        c.atkAnimT = ATK_DUR;
         G.slashes.push({ x: c.x, y: c.y, angle: Math.atan2(t.y - c.y, t.x - c.x), range: 44, t: 0.16, maxT: 0.16 });
         damageEnemy(t, def.atk.dmg);
       }
@@ -57,6 +59,7 @@ function updateCompanion(dt) {
       const t = nearestEnemy(c.x, c.y, def.atk.range);
       if (t) {
         c.atkTimer = def.atk.cd;
+        c.atkAnimT = ATK_DUR;
         const a = Math.atan2(t.y - c.y, t.x - c.x);
         G.knives.push({ x: c.x, y: c.y, vx: Math.cos(a) * def.atk.projSpeed, vy: Math.sin(a) * def.atk.projSpeed, dmg: def.atk.dmg, life: 1.2 });
       }
