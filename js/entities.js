@@ -131,6 +131,7 @@ function updatePlayer(dt) {
   if (dx || dy) {
     const len = Math.hypot(dx, dy); dx /= len; dy /= len;
     p.facing = { x: dx, y: dy };
+    p.flipX = dx < 0;   // 왼쪽 이동 → 스프라이트 좌우 반전
     const spd = PLAYER.speed * (1 + (p.skills.speed ? skillStats('speed', p.skills.speed).pct : 0) / 100) * (G.tempBuffs.haste > 0 ? 1.5 : 1);
     moveWithWalls(p, dx * spd * dt, dy * spd * dt, PLAYER.radius);
   }
@@ -159,6 +160,7 @@ function updatePlayer(dt) {
       }
       // 슬래시 이펙트
       const a = Math.atan2(targets[0].y - p.y, targets[0].x - p.x);
+      p.flipX = (targets[0].x - p.x) < 0;   // 공격 시 대상 쪽을 바라봄
       G.slashes.push({ x: p.x, y: p.y, angle: a, range, t: 0.16, maxT: 0.16 });
       sfxSwing(); // 스와시 + 명중 틱
       sfxHit();
@@ -271,6 +273,7 @@ function updateEnemies(dt) {
       }
     }
     moveWithWalls(e, mx * spd * dt, my * spd * dt, e.radius);
+    if (mx < 0) e.flipX = true; else if (mx > 0) e.flipX = false;   // 이동 방향에 맞춰 좌우 반전
     // 충돌 데미지
     const rr = e.radius + p.radius;
     if (d < rr && p.invulnTimer <= 0) {

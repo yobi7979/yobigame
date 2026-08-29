@@ -63,12 +63,22 @@ for (const an of ATK_ANIM_NAMES) {
     img.src = 'assets/' + an + '_a' + i + '.png';
   }
 }
-function drawSprite(name, x, y, size, animT, moving, phase, atkAnimT) {
+// ===== 좌우 반전 렌더 (이동 방향에 맞춰 스프라이트 미러) =====
+// flipX=true → ctx.scale(-1,1)으로 좌우 반전. 좌표계는 save/restore로 복원.
+function drawFlipped(img, x, y, size) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(-1, 1);
+  ctx.drawImage(img, -size / 2, -size / 2, size, size);
+  ctx.restore();
+}
+function drawSprite(name, x, y, size, animT, moving, phase, atkAnimT, flipX) {
   if (atkAnimT > 0 && ATK_ANIM[name]) {
     const frames = ATK_ANIM[name];
     const t = clamp(atkAnimT / ATK_DUR, 0, 1);
     const idx = Math.min(frames.length - 1, Math.floor((1 - t) * frames.length));
-    ctx.drawImage(frames[idx], x - size / 2, y - size / 2, size, size);
+    if (flipX) drawFlipped(frames[idx], x, y, size);
+    else ctx.drawImage(frames[idx], x - size / 2, y - size / 2, size, size);
     return true;
   }
   const frames = ANIM[name];
@@ -77,7 +87,8 @@ function drawSprite(name, x, y, size, animT, moving, phase, atkAnimT) {
     const t = (animT || 0) * spec.fps;
     const idx = spec.seq ? spec.seq[Math.floor(t) % spec.seq.length] : Math.floor(t) % frames.length;
     const bob = Math.sin(t * Math.PI + (phase || 0)) * size * (moving ? 0.035 : 0.012);
-    ctx.drawImage(frames[idx], x - size / 2, y - size / 2 - bob, size, size);
+    if (flipX) drawFlipped(frames[idx], x, y - bob, size);
+    else ctx.drawImage(frames[idx], x - size / 2, y - size / 2 - bob, size, size);
     return true;
   }
   return drawAsset(name, x, y, size);

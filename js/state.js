@@ -25,7 +25,7 @@ function newRun() {
       shield: 0, shieldDur: 0,
       xp: 0, level: 1, dmgBonus: 0,
       skills: { shield: 1 }, atkTimer: 0, atkAnimT: 0, invulnTimer: 0, skillTimers: {},
-      facing: { x: 1, y: 0 }, flash: 0, trail: [], animT: 0, moving: false,
+      facing: { x: 1, y: 0 }, flipX: false, flash: 0, trail: [], animT: 0, moving: false,
     },
     enemies: [], projectiles: [], pickups: [], particles: [], slashes: [], floaters: [],
     items: [],
@@ -40,7 +40,7 @@ function newRun() {
   g.companion = {
     id: (CONFIG.COMPANIONS.find(c => c.id === chosenCompId) || CONFIG.COMPANIONS[0]).id,
     x: g.player.x - 45, y: g.player.y,
-    atkTimer: 1, healTimer: 8, ultTimer: 10, atkAnimT: 0,
+    atkTimer: 1, healTimer: 8, ultTimer: 10, atkAnimT: 0, flipX: false,
   };
   g.knives = [];
   const _gdef = CONFIG.COMPANIONS.find(c => c.id === g.companion.id);

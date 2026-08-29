@@ -108,7 +108,7 @@ function render() {
   ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
   // 적 (애니메이션 프레임 / 정적 에셋 폴백 → 원 폴백)
   for (const e of G.enemies) {
-    if (!drawSprite('enemy_' + e.type, e.x, e.y, e.radius * 2, e.animT || 0, true, e.phase, e.atkAnimT || 0)) {
+    if (!drawSprite('enemy_' + e.type, e.x, e.y, e.radius * 2, e.animT || 0, true, e.phase, e.atkAnimT || 0, e.flipX)) {
       ctx.fillStyle = e.hitFlash > 0 ? '#ffffff' : ENEMY_COLORS[e.type];
       ctx.beginPath(); ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2); ctx.fill();
     } else if (e.hitFlash > 0) {
@@ -205,7 +205,7 @@ function render() {
     ctx.setLineDash([]);
   }
   const psz = p.radius * 2.6;
-  if (!drawSprite('player', p.x, p.y, psz, p.animT || 0, p.moving, 0, p.atkAnimT || 0)) {
+  if (!drawSprite('player', p.x, p.y, psz, p.animT || 0, p.moving, 0, p.atkAnimT || 0, p.flipX)) {
     ctx.fillStyle = p.flash > 0 ? '#ff8899' : '#ffffff';
     ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
   }
@@ -213,9 +213,9 @@ function render() {
     ctx.fillStyle = 'rgba(255,80,100,0.45)';
     ctx.beginPath(); ctx.arc(p.x, p.y, psz / 2, 0, Math.PI * 2); ctx.fill();
   }
-  // 이동 방향
+  // 이동 방향 (facing 벡터 기반 — p.angle 미정의 상태 수정)
   ctx.strokeStyle = p.flash > 0 ? '#ff8899' : '#ffd166'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + Math.cos(p.angle) * (p.radius + 6), p.y + Math.sin(p.angle) * (p.radius + 6)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + p.facing.x * (p.radius + 6), p.y + p.facing.y * (p.radius + 6)); ctx.stroke();
   // 칼날 (동료)
   for (const k of G.knives) {
     const a = Math.atan2(k.vy, k.vx);
@@ -227,7 +227,7 @@ function render() {
   if (G.companion) {
     const c = G.companion;
     const cdef = CONFIG.COMPANIONS.find(x => x.id === c.id);
-    const cdrawn = drawSprite('comp_' + c.id, c.x, c.y, 26, G.time, true, 1, c.atkAnimT || 0);
+    const cdrawn = drawSprite('comp_' + c.id, c.x, c.y, 26, G.time, true, 1, c.atkAnimT || 0, c.flipX);
     if (!cdrawn) {
       ctx.fillStyle = COMP_COLORS[c.id] || '#ffffff';
       ctx.beginPath(); ctx.arc(c.x, c.y, 11, 0, Math.PI * 2); ctx.fill();

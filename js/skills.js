@@ -17,6 +17,7 @@ function updateCompanion(dt) {
   const d = Math.hypot(dx, dy) || 1;
   if (d > 40) {
     const sp = Math.min(280, d * 6) * dt;
+    c.flipX = dx < 0;   // 추종 이동 방향에 맞춰 좌우 반전
     moveWithWalls(c, dx / d * sp, dy / d * sp, c.radius || 12);
   }
   c.atkTimer -= dt; c.ultTimer -= dt;
@@ -27,6 +28,7 @@ function updateCompanion(dt) {
       if (t) {
         c.atkTimer = def.atk.cd;
         c.atkAnimT = ATK_DUR;
+        c.flipX = (t.x - c.x) < 0;   // 공격 시 대상 쪽을 바라봄
         G.slashes.push({ x: c.x, y: c.y, angle: Math.atan2(t.y - c.y, t.x - c.x), range: 44, t: 0.16, maxT: 0.16 });
         damageEnemy(t, def.atk.dmg);
       }
@@ -60,6 +62,7 @@ function updateCompanion(dt) {
       if (t) {
         c.atkTimer = def.atk.cd;
         c.atkAnimT = ATK_DUR;
+        c.flipX = (t.x - c.x) < 0;   // 공격 시 대상 쪽을 바라봄
         const a = Math.atan2(t.y - c.y, t.x - c.x);
         G.knives.push({ x: c.x, y: c.y, vx: Math.cos(a) * def.atk.projSpeed, vy: Math.sin(a) * def.atk.projSpeed, dmg: def.atk.dmg, life: 1.2 });
       }
